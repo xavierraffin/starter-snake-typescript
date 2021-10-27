@@ -281,7 +281,7 @@ export function move(gameState: GameState): MoveResponse {
   const bestMoves = returnBestMovesList(safeMoves, appealingMoves, riskyMoves);
 
   const response: MoveResponse = {
-    move: safeMoves[Math.floor(Math.random() * safeMoves.length)],
+    move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
   };
 
   console.log(`${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`);
