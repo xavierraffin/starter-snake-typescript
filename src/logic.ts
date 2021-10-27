@@ -88,12 +88,50 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
   return false;
 }
 
+const POTENTIAL_KILL_BONUS = 1;
+const FOOD_MAX_BONUS = 5;
+class ScoredDirection {
+  directions: { [key: string]: number } = {
+    up: 0,
+    down: 0,
+    left: 0,
+    right: 0,
+  };
+  addScore(direction: string, score: number) {
+    this.directions[direction] += score;
+  }
+  getMinimumDirections() {
+    const minimum = Math.min(
+      ...Object.keys(this.directions).map((key) => this.directions[key])
+    );
+    return this.getDirectionsOfValue(minimum);
+  }
+  getMaximumDirections() {
+    const maximum = Math.max(
+      ...Object.keys(this.directions).map((key) => this.directions[key])
+    );
+    return this.getDirectionsOfValue(maximum);
+  }
+  getDirectionsOfValue(value: number) {
+    const directions = Object.keys(this.directions).filter(
+      (key) => this.directions[key] === value
+    );
+    trace(
+      `these directions have value = ${value} : ${JSON.stringify(directions)}`
+    );
+    return directions;
+  }
+}
+
+// Todo is potential colision is last valid move let's allow
 function headColisionDesision(
   enemyHead: any,
   enemyLength: number,
   myhead: any,
   myLength: number,
-  possibleMoves: any
+  possibleMoves: any,
+  riskyMoves: ScoredDirection,
+  appealingMoves: ScoredDirection
 ): void {
   trace(
     `Evaluate collision between me ${myLength} : [${myhead.x},${myhead.y}] and enemy of length ${enemyLength} at [${enemyHead.x},${enemyHead.y}]`
@@ -106,8 +144,10 @@ function headColisionDesision(
       if (enemyLength >= myLength) {
         trace(`There a potential deadly collision head on the ${safeMoves[j]}`);
         possibleMoves[safeMoves[j]] = false;
+        riskyMoves.addScore(safeMoves[j], POTENTIAL_KILL_BONUS);
       } else {
         trace(`There a potential safe kill collision on the ${safeMoves[j]}`);
+        appealingMoves.addScore(safeMoves[j], POTENTIAL_KILL_BONUS);
       }
     }
   }
@@ -179,6 +219,8 @@ export function move(gameState: GameState): MoveResponse {
   // TODO: Step 3 - Don't collide with others.
   // Use information in gameState to prevent your Battlesnake from colliding with others.
   trace(" ===== Step 3 - Don't collide with others =====");
+  let riskyMoves = new ScoredDirection();
+  let appealingMoves = new ScoredDirection();
   for (let i = 0; i < gameState.board.snakes.length; i++) {
     if (gameState.board.snakes[i].id == gameState.you.id) {
       continue;
@@ -189,7 +231,9 @@ export function move(gameState: GameState): MoveResponse {
       gameState.board.snakes[i].length,
       myHead,
       gameState.you.length,
-      possibleMoves
+      possibleMoves,
+      riskyMoves,
+      appealingMoves
     );
   }
   trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
@@ -197,32 +241,29 @@ export function move(gameState: GameState): MoveResponse {
   // TODO: Step 4 - Find food.
   // Use information in gameState to seek out and find food.
   trace(" ===== Step 4 - Find food =====");
+  // TODO: Bonus for food could depend of how hungry
   for (let i = 0; i < gameState.board.food.length; i++) {
     if (myHead.y == gameState.board.food[i].y) {
       if (myHead.x == gameState.board.food[i].x - 1 && possibleMoves.right) {
         trace("There is food on the right and it is safe");
-        possibleMoves.up = false;
-        possibleMoves.down = false;
+        appealingMoves.addScore("right", FOOD_MAX_BONUS);
       } else if (
         myHead.x == gameState.board.food[i].x + 1 &&
         possibleMoves.left
       ) {
         trace("There is food on the left and it is safe");
-        possibleMoves.up = false;
-        possibleMoves.down = false;
+        appealingMoves.addScore("left", FOOD_MAX_BONUS);
       }
     } else if (myHead.x == gameState.board.food[i].x) {
       if (myHead.y == gameState.board.food[i].y - 1 && possibleMoves.up) {
         trace("There is food on the up and it is safe");
-        possibleMoves.left = false;
-        possibleMoves.right = false;
+        appealingMoves.addScore("up", FOOD_MAX_BONUS);
       } else if (
         myHead.y == gameState.board.food[i].y + 1 &&
         possibleMoves.down
       ) {
         trace("There is food on the up and it down safe");
-        possibleMoves.left = false;
-        possibleMoves.right = false;
+        appealingMoves.addScore("left", FOOD_MAX_BONUS);
       }
     }
   }
@@ -230,14 +271,55 @@ export function move(gameState: GameState): MoveResponse {
   // Finally, choose a move from the available safe moves.
   // TODO: Step 5 - Select a move to make based on strategy, rather than random.
   trace(" ===== Step 5 - Choose a move =====");
-  trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
   const safeMoves = Object.keys(possibleMoves).filter(
     (key) => possibleMoves[key]
   );
+
+  const bestMoves = returnBestMovesList(safeMoves, appealingMoves, riskyMoves);
+
   const response: MoveResponse = {
     move: safeMoves[Math.floor(Math.random() * safeMoves.length)],
   };
 
   console.log(`${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`);
   return response;
+}
+
+function returnBestMovesList(
+  safeMoves: string[],
+  appealingMoves: ScoredDirection,
+  riskyMoves: ScoredDirection
+): string[] {
+  trace(`Safe moves = ${JSON.stringify(safeMoves)}`);
+  trace(`appealingMoves = ${JSON.stringify(appealingMoves)}`);
+  trace(`riskyMoves = ${JSON.stringify(riskyMoves)}`);
+
+  const moveRisky0 = riskyMoves.getDirectionsOfValue(0);
+  trace(`risky moves of 0 = ${moveRisky0}`);
+
+  const intersectionSafeMoves = safeMoves.filter((value) =>
+    moveRisky0.includes(value)
+  );
+  trace(`intersectionSafeMoves = ${JSON.stringify(intersectionSafeMoves)}`);
+  if (intersectionSafeMoves.length === 1) {
+    trace(`There is only one truly safe move = ${intersectionSafeMoves[0]}`);
+    return intersectionSafeMoves;
+  }
+  let directionWorthExploring;
+  if (intersectionSafeMoves.length === 0) {
+    trace(`All moves are risky evaluating all possible moves`);
+    directionWorthExploring = safeMoves;
+  } else {
+    trace(`Some moves are not risky keeping only these one to be safe`);
+    directionWorthExploring = intersectionSafeMoves;
+  }
+  trace(`Now exploring ${JSON.stringify(directionWorthExploring)}`);
+
+  const maxAppealingDirections = appealingMoves.getMaximumDirections();
+  trace(`maxAppealingDirections = ${JSON.stringify(maxAppealingDirections)}`);
+  const bestMoves = directionWorthExploring.filter((value) =>
+    maxAppealingDirections.includes(value)
+  );
+  trace(`bestMoves = ${JSON.stringify(bestMoves)}`);
+  return bestMoves;
 }
