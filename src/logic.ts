@@ -316,10 +316,20 @@ export function move(gameState: GameState): MoveResponse {
   );
 
   trace(`Future state global result:`);
-  Object.keys(futureStates).map(key => trace(`    ${key}:  ${futureStates[key].stateScore}`));
+  let maximum = futureStates[0].stateScore;
+  Object.keys(futureStates).map(key => {
+    if(maximum < futureStates[key].stateScore)
+    {
+        maximum < futureStates[key].stateScore;
+    }
+    trace(`    ${key}:  ${futureStates[key].stateScore}`)});
+
+  const bestDirections = Object.keys(futureStates).filter((key) => futureStates[key].stateScore == maximum).map(key => key);
+
+  trace(`Overall bestDirections = ${JSON.stringify(bestDirections)}`);
 
   const response: MoveResponse = {
-    move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
+    move: bestDirections[Math.floor(Math.random() * bestDirections.length)],
   };
 
   trace(`${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`);
