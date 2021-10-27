@@ -227,19 +227,20 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
 }
 
 export function evaluateFutureGameState(
+  directionHistory: string[],
   direction: string,
   gameState: GameState,
   remainingMaxEvaluations: number
 ): { futureState: GameState; stateScore: number } {
   trace(
-    `   evaluateFutureGameState  depth = ${remainingMaxEvaluations}, direction = ${direction}`
+    `   evaluateFutureGameState  depth = ${remainingMaxEvaluations}, direction = ${JSON.stringify(direction)}, history = ${JSON.stringify(directionHistory)}`
   );
   const futureState = gameStateAfterThisMove(direction, gameState);
   // TODO calculate future state just updating me
   if (remainingMaxEvaluations == 0) {
     const score = scoreGameState(futureState);
     trace(
-      `       gamescore = ${score}   - depth = ${remainingMaxEvaluations}, direction = ${direction}`
+      `       gamescore = ${score}`
     );
     return {
       futureState: futureState,
@@ -251,15 +252,14 @@ export function evaluateFutureGameState(
     const bestMoves = returnBestMovesList(safe, appeal, risky, takeNorisk);
 
     if (safe.length === 0) {
-      trace(
-        `     number of safe moves is 0, depth = ${remainingMaxEvaluations}, score = ${DEATH_SCORE}`
-      );
+      trace(`     number of safe moves is 0, DEATH gamescore = ${DEATH_SCORE}`);
       return {
         futureState: futureState,
         stateScore: DEATH_SCORE,
       };
     }
     const futureStates = evaluateFutureGameStates(
+      directionHistory,
       bestMoves,
       futureState,
       remainingMaxEvaluations - 1
@@ -269,7 +269,7 @@ export function evaluateFutureGameState(
       .reduce((accumulator, currentValue) => accumulator + currentValue);
     const numberOfViableFuture = Object.keys(futureStates).length;
     trace(
-      `      depth = ${remainingMaxEvaluations}, number of futures = ${numberOfViableFuture}, score = ${totalScore}`
+      `      number of futures = ${numberOfViableFuture}, gamescore = ${totalScore}`
     );
     return {
       futureState: futureState,
@@ -279,6 +279,7 @@ export function evaluateFutureGameState(
 }
 
 export function evaluateFutureGameStates(
+  directionHistory: string[],
   directions: string[],
   gameState: GameState,
   remainingMaxEvaluations: number
@@ -286,13 +287,15 @@ export function evaluateFutureGameStates(
   trace(
     ` evaluateFutureGameStates : depth = ${remainingMaxEvaluations}, directions = ${JSON.stringify(
       directions
-    )}`
+    )} - history = ${JSON.stringify(directionHistory)}`
   );
   const states: {
     [direction: string]: { futureState: GameState; stateScore: number };
   } = {};
   for (let i = 0; i < directions.length; i++) {
+    directionHistory.push(directions[i]);
     states[directions[i]] = evaluateFutureGameState(
+      directionHistory,
       directions[i],
       gameState,
       remainingMaxEvaluations
@@ -310,6 +313,7 @@ export function move(gameState: GameState): MoveResponse {
   const bestMoves = returnBestMovesList(safe, appeal, risky);
 
   const futureStates = evaluateFutureGameStates(
+    new Array(),
     bestMoves,
     gameState,
     MAX_EVALUATION_DEPTH
