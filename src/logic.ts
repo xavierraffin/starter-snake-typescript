@@ -308,7 +308,7 @@ export function evaluateFutureGameStates(
     [direction: string]: { futureState: GameState; stateScore: number };
   } = {};
   for (let i = 0; i < directions.length; i++) {
-    const newHistory = {...directionHistory};
+    const newHistory = directionHistory.slice();
     newHistory.push(directions[i]);
     states[directions[i]] = evaluateFutureGameState(
       newHistory,
