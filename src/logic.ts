@@ -255,6 +255,8 @@ export function move(gameState: GameState): MoveResponse {
 
       const futureStates = evaluateFutureGameStates(bestMoves, gameState, MAX_STEP_EVALUATIONS);
 
+      trace(`Future state global result = ${JSON.stringify(futureStates)}`);
+
       const response: MoveResponse = {
         move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
       };
