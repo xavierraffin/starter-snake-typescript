@@ -251,6 +251,7 @@ export function evaluateFutureGameStates(
 const MAX_EVALUATION_DEPTH = 2;
 
 export function move(gameState: GameState): MoveResponse {
+  trace("\n === start Move ===");
   console.log(gameState);
   const { safe, risky, appeal } = moveEvaluator(gameState);
   const bestMoves = returnBestMovesList(safe, appeal, risky);
@@ -282,8 +283,6 @@ export function moveEvaluator(gameState: GameState): {
     left: true,
     right: true,
   };
-
-  trace("\n === start Move ===");
 
   // Step 0: Don't let your Battlesnake move back on it's own neck
   const myHead = gameState.you.head;
@@ -371,7 +370,7 @@ export function moveEvaluator(gameState: GameState): {
 
   // Finally, choose a move from the available safe moves.
   // TODO: Step 5 - Select a move to make based on strategy, rather than random.
-  trace(" ===== Step 5 - Choose a move =====");
+  // trace(" ===== Step 5 - Choose a move =====");
   const safeMoves = Object.keys(possibleMoves).filter(
     (key) => possibleMoves[key]
   );
@@ -384,47 +383,47 @@ function returnBestMovesList(
   riskyMoves: ScoredDirection,
   takeNorisk: boolean = false
 ): string[] {
-  trace(`Safe moves = ${JSON.stringify(safeMoves)}`);
-  trace(`appealingMoves = ${JSON.stringify(appealingMoves)}`);
-  trace(`riskyMoves = ${JSON.stringify(riskyMoves)}`);
+  // trace(`Safe moves = ${JSON.stringify(safeMoves)}`);
+  // trace(`appealingMoves = ${JSON.stringify(appealingMoves)}`);
+  // trace(`riskyMoves = ${JSON.stringify(riskyMoves)}`);
 
   const moveRisky0 = riskyMoves.getDirectionsOfValue(0);
-  trace(`risky moves of 0 = ${moveRisky0}`);
+  // trace(`risky moves of 0 = ${moveRisky0}`);
 
   const intersectionSafeMoves = safeMoves.filter((value) =>
     moveRisky0.includes(value)
   );
-  trace(`intersectionSafeMoves = ${JSON.stringify(intersectionSafeMoves)}`);
+  // trace(`intersectionSafeMoves = ${JSON.stringify(intersectionSafeMoves)}`);
   if (intersectionSafeMoves.length === 1) {
-    trace(`There is only one truly safe move = ${intersectionSafeMoves[0]}`);
+    // trace(`There is only one truly safe move = ${intersectionSafeMoves[0]}`);
     return intersectionSafeMoves;
   }
   let directionWorthExploring;
   if (intersectionSafeMoves.length === 0) {
-    trace(`All moves are risky evaluating all possible moves`);
+    // trace(`All moves are risky evaluating all possible moves`);
     if (takeNorisk) {
       // If no tolerance to risk return empty
       return [];
     }
     directionWorthExploring = safeMoves;
   } else {
-    trace(`Some moves are not risky keeping only these one to be safe`);
+    // trace(`Some moves are not risky keeping only these one to be safe`);
     directionWorthExploring = intersectionSafeMoves;
   }
-  trace(`Now exploring ${JSON.stringify(directionWorthExploring)}`);
+  // trace(`Now exploring ${JSON.stringify(directionWorthExploring)}`);
 
   const maxAppealingDirections = appealingMoves.getMaxAmongTheseDirections(
     directionWorthExploring
   );
-  trace(`maxAppealingDirections = ${JSON.stringify(maxAppealingDirections)}`);
+  // trace(`maxAppealingDirections = ${JSON.stringify(maxAppealingDirections)}`);
   if (maxAppealingDirections.length === 0) {
-    trace(
+    /* trace(
       `No possible move are appealing returning safeMoves ${JSON.stringify(
         safeMoves
       )}`
-    );
+    );*/
     return safeMoves;
   }
-  trace(`bestMoves = ${JSON.stringify(maxAppealingDirections)}`);
+  // trace(`bestMoves = ${JSON.stringify(maxAppealingDirections)}`);
   return maxAppealingDirections;
 }
