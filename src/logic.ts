@@ -175,10 +175,9 @@ export function scoreGameState(gameState: GameState): number {
 }
 
 export function gameStateAfterThisMove(direction: string, gameState: GameState): GameState {
-    let newState = gameState;
-    let you = gameState.you;
-    let newHead = { ...gameState.you.head};
-    console.log(newHead);
+    let newState = Object.create(gameState);
+    let newHead = newState.you.head;
+    console.log(gameState.you.head);
     switch (direction) {
       case "up":
           newHead.y++;
@@ -192,15 +191,12 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
       case "left":
           newHead.x--;
     }
-    console.log(you.head);
-    you.head = newHead;
-    console.log(newHead);
-    console.log(you.body);
-    you.body.pop();
-    you.body.unshift(newHead);
-    console.log(you.body);
-    newState.you = you;
-    newState.board.snakes[0] = you;
+    console.log(newState.you.head);
+    console.log(gameState.you.head);
+    newState.you.body.pop();
+    newState.you.body.unshift(newHead);
+    newState.board.snakes[0] = newState.you;
+    console.log(newState.you.body);
 
     console.log(`\n old and new state after move ${direction}`);
     console.log(JSON.stringify(gameState) + "\n");
