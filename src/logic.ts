@@ -264,6 +264,16 @@ export function evaluateFutureGameState(
       futureState,
       remainingMaxEvaluations - 1
     );
+    if (Object.keys(futureStates).length === 0) {
+      trace(
+        `     number of futureStates is 0, DEATH??? gamescore = ${DEATH_SCORE}`
+      );
+      trace(futureStates);
+      return {
+        futureState: futureState,
+        stateScore: DEATH_SCORE,
+      };
+    } 
     const totalScore = Object.keys(futureStates)
       .map((key) => futureStates[key].stateScore)
       .reduce((accumulator, currentValue) => accumulator + currentValue);
