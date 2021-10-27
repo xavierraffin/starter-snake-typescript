@@ -192,7 +192,7 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
     }
     you.head = newHead;
     you.body.pop();
-    you.body.push(you.head);
+    you.body.unshift(you.head);
     newState.you = you;
     newState.board.snakes[0] = you;
 
