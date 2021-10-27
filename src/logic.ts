@@ -178,6 +178,7 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
     let newState = gameState;
     let you = gameState.you;
     let newHead = gameState.you.head;
+    console.log(newHead);
     switch (direction) {
       case "up":
           newHead.y++;
