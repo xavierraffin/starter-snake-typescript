@@ -213,7 +213,7 @@ export function moveEvaluator(gameState: GameState): {
     right: true,
   };
 
-  trace(" === start Move ===");
+  trace("\n === start Move ===");
 
   // Step 0: Don't let your Battlesnake move back on it's own neck
   const myHead = gameState.you.head;
