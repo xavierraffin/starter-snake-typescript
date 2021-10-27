@@ -197,8 +197,8 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
     newState.board.snakes[0] = you;
 
     console.log(`\n old and new state after move ${direction}`);
-    console.log(gameState);
-    console.log(newState);
+    console.log(JSON.stringify(gameState) + "\n");
+    console.log(JSON.stringify(newState) + "\n\n");
 
     return newState;
 }
