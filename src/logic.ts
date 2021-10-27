@@ -25,19 +25,19 @@ function avoidSnakeBody(body: any[], myhead: any, possibleMoves: any): void {
   for (let i = 0; i < body.length - 1; i++) {
     if (body[i].x == myhead.x) {
       if (body[i].y == myhead.y + 1) {
-        trace("There is a body on the up");
+        // trace("There is a body on the up");
         possibleMoves.up = false;
       } else if (body[i].y == myhead.y - 1) {
-        trace("There is a body on the down");
+        // trace("There is a body on the down");
         possibleMoves.down = false;
       }
     }
     if (body[i].y == myhead.y) {
       if (body[i].x == myhead.x + 1) {
-        trace("There is a body on the right");
+        // trace("There is a body on the right");
         possibleMoves.right = false;
       } else if (body[i].x == myhead.x - 1) {
-        trace("There is a body on the left");
+        // trace("There is a body on the left");
         possibleMoves.left = false;
       }
     }
@@ -45,9 +45,9 @@ function avoidSnakeBody(body: any[], myhead: any, possibleMoves: any): void {
 }
 
 function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
-  trace(
+  /*trace(
     `Evaluate if [${snakeHead.x},${snakeHead.y}] is on my ${direction} : between me [${myhead.x},${myhead.y}]`
-  );
+  );*/
   switch (direction) {
     case "up":
       if (
@@ -107,7 +107,7 @@ class ScoredDirection {
     possibleDirections.forEach(
       (value) => (this.directions[value] += CONSIDERABLE_BONUS)
     );
-    trace(`CONSIDERABLE_BONUS applied ${JSON.stringify(this.directions)}`);
+    // trace(`CONSIDERABLE_BONUS applied ${JSON.stringify(this.directions)}`);
     return this.getMaximumDirections();
   }
   getMaximumDirections() {
@@ -120,9 +120,9 @@ class ScoredDirection {
     const directions = Object.keys(this.directions).filter(
       (key) => this.directions[key] === value
     );
-    trace(
+    /* trace(
       `these directions have value = ${value} : ${JSON.stringify(directions)}`
-    );
+    );*/
     return directions;
   }
 }
@@ -137,19 +137,19 @@ function headColisionDesision(
   riskyMoves: ScoredDirection,
   appealingMoves: ScoredDirection
 ): void {
-  trace(
+  /*trace(
     `Evaluate collision between me ${myLength} : [${myhead.x},${myhead.y}] and enemy of length ${enemyLength} at [${enemyHead.x},${enemyHead.y}]`
-  );
+  );*/
   const safeMoves = Object.keys(possibleMoves).filter(
     (key) => possibleMoves[key]
   );
   for (let j = 0; j < safeMoves.length; j++) {
     if (isOnThisSide(enemyHead, myhead, safeMoves[j])) {
       if (enemyLength >= myLength) {
-        trace(`There a potential deadly collision head on the ${safeMoves[j]}`);
+        // trace(`There a potential deadly collision head on the ${safeMoves[j]}`);
         riskyMoves.addScore(safeMoves[j], POTENTIAL_KILL_BONUS);
       } else {
-        trace(`There a potential safe kill collision on the ${safeMoves[j]}`);
+        // trace(`There a potential safe kill collision on the ${safeMoves[j]}`);
         appealingMoves.addScore(safeMoves[j], POTENTIAL_KILL_BONUS);
       }
     }
@@ -271,7 +271,7 @@ export function moveEvaluator(gameState: GameState): {
 
   // TODO: Step 4 - Find food.
   // Use information in gameState to seek out and find food.
-  trace(" ===== Step 4 - Find food =====");
+  // trace(" ===== Step 4 - Find food =====");
   // TODO: Bonus for food could depend of how hungry
   for (let i = 0; i < gameState.board.food.length; i++) {
     if (myHead.y == gameState.board.food[i].y) {
@@ -301,7 +301,7 @@ export function moveEvaluator(gameState: GameState): {
 
   // Finally, choose a move from the available safe moves.
   // TODO: Step 5 - Select a move to make based on strategy, rather than random.
-  // trace(" ===== Step 5 - Choose a move =====");
+  trace(" ===== Step 5 - Choose a move =====");
   const safeMoves = Object.keys(possibleMoves).filter(
     (key) => possibleMoves[key]
   );
