@@ -161,7 +161,7 @@ const DEBUG = true;
 
 function trace(msg: any): void {
   if (DEBUG) {
-    console.error(msg);
+    process.stdout.write(msg);
   }
 }
 
@@ -251,7 +251,7 @@ export function evaluateFutureGameStates(
 const MAX_EVALUATION_DEPTH = 2;
 
 export function move(gameState: GameState): MoveResponse {
-  console.log(gameState);
+  trace(gameState);
   const { safe, risky, appeal } = moveEvaluator(gameState);
   const bestMoves = returnBestMovesList(safe, appeal, risky);
 
