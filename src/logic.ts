@@ -174,6 +174,18 @@ export function scoreGameState(gameState: GameState): number {
   return gameState.you.health - ((gameState.board.snakes.length -1) * 100);
 }
 
+export function foodInPosition(position: any, gameState: GameState): boolean {
+  for (let i = 0; i < gameState.board.food.length; i++) {
+    if (
+      gameState.board.food[i].x == position.x &&
+      gameState.board.food[i].y == position.y
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function gameStateAfterThisMove(direction: string, gameState: GameState): GameState {
     let newState = JSON.parse(JSON.stringify(gameState));
     let newHead = newState.you.head;
@@ -190,16 +202,21 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
       case "left":
           newHead.x--;
     }
-    console.log(newState.you.head);
-    console.log(gameState.you.head);
-    newState.you.body.pop();
+    // Restore health and make longer if food
+    if (foodInPosition(newHead, gameState)) {
+      newState.you.health = 100;
+    } else {
+      newState.you.body.pop();
+      newState.you.health--;
+    }
     newState.you.body.unshift(newHead);
     newState.board.snakes[0] = newState.you;
 
+    /*
     console.log(`\n old and new state after move ${direction}`);
     console.log(JSON.stringify(gameState) + "\n");
     console.log(JSON.stringify(newState) + "\n");
-
+    */
     return newState;
 }
 
