@@ -301,7 +301,7 @@ export function evaluateFutureGameStates(
   return states;
 }
 
-const MAX_EVALUATION_DEPTH = 1;
+const MAX_EVALUATION_DEPTH = 3;
 
 export function move(gameState: GameState): MoveResponse {
   trace("\n === start Move ===");
