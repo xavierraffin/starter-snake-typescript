@@ -91,6 +91,7 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
 const POTENTIAL_KILL_BONUS = 1;
 const FOOD_MAX_BONUS = 5;
 const CONSIDERABLE_BONUS = 100;
+const DEATH_SCORE = -100;
 class ScoredDirection {
   directions: { [key: string]: number } = {
     up: 0,
@@ -164,32 +165,85 @@ function trace(msg: any): void {
   }
 }
 
+export function scoreGameState(gameState: GameState): number{
+    // self health
+    // number of enemies (death)
+    // self length against enemy length
+    // self death
+    return gameState.you.health - gameState.board.snakes.length * 100;
+}
+
 export function evaluateFutureGameState(
   direction: string,
-  gameState: GameState
-): GameState {
-  return gameState;
+  gameState: GameState,
+  remainingMaxEvaluations: number
+): { futureState: GameState; stateScore: number } {
+  const futureState = gameState;
+  // TODO calculate future state just updating me
+  if (remainingMaxEvaluations == 0){
+        return {
+        futureState: futureState,
+        stateScore: scoreGameState(futureState),
+        };
+    } else {
+        const { safe, risky, appeal } = moveEvaluator(futureState);
+        const takeNorisk = true;
+        const bestMoves = returnBestMovesList(safe, appeal, risky, takeNorisk);
+
+        if (bestMoves.length === 0) {
+            trace(
+            `depth = ${remainingMaxEvaluations}, number of futures is 0, score = ${DEATH_SCORE}`
+            );
+            return {
+              futureState: futureState,
+              stateScore: DEATH_SCORE,
+            };
+        }
+        const futureStates = evaluateFutureGameStates(
+            bestMoves,
+            futureState,
+            remainingMaxEvaluations - 1
+        );
+        const totalScore = Object.keys(futureStates)
+          .map((key) => futureStates[key].stateScore)
+          .reduce(
+            (accumulator, currentValue) => accumulator + currentValue
+          );
+        const numberOfViableFuture = futureStates.length;
+        trace(
+          `depth = ${remainingMaxEvaluations}, number of futures = ${numberOfViableFuture}, score = ${totalScore}`
+        );
+        return {
+          futureState: futureState,
+          stateScore: totalScore,
+        };
+    }
 };
 
 export function evaluateFutureGameStates(
   directions: string[],
-  gameState: GameState
-): GameState[] {
-  const states: GameState[] = new Array();
+  gameState: GameState,
+  remainingMaxEvaluations: number
+): { [direction: string]: {futureState: GameState; stateScore: number; }} {
+  const states: { [direction: string]: {futureState: GameState; stateScore: number; }} = {};
   for (let i = 0; i < directions.length; i++) {
-    states.push(evaluateFutureGameState(directions[i], gameState));
+    states[directions[i]] = evaluateFutureGameState(
+      directions[i],
+      gameState,
+      remainingMaxEvaluations
+    );
   }
   return states;
 };
 
+const MAX_STEP_EVALUATIONS = 1;
+
 export function move(gameState: GameState): MoveResponse {
+    console.log(gameState);
     const { safe, risky, appeal } = moveEvaluator(gameState);
       const bestMoves = returnBestMovesList(safe, appeal, risky);
 
-      const futureStates: GameState[] = evaluateFutureGameStates(
-        bestMoves,
-        gameState
-      );
+      const futureStates = evaluateFutureGameStates(bestMoves, gameState, MAX_STEP_EVALUATIONS);
 
       const response: MoveResponse = {
         move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
@@ -311,7 +365,8 @@ export function moveEvaluator(gameState: GameState): {
 function returnBestMovesList(
   safeMoves: string[],
   appealingMoves: ScoredDirection,
-  riskyMoves: ScoredDirection
+  riskyMoves: ScoredDirection,
+  takeNorisk: boolean = false
 ): string[] {
   trace(`Safe moves = ${JSON.stringify(safeMoves)}`);
   trace(`appealingMoves = ${JSON.stringify(appealingMoves)}`);
@@ -331,6 +386,10 @@ function returnBestMovesList(
   let directionWorthExploring;
   if (intersectionSafeMoves.length === 0) {
     trace(`All moves are risky evaluating all possible moves`);
+    if (takeNorisk) {
+        // If no tolerance to risk return empty
+        return [];
+    }
     directionWorthExploring = safeMoves;
   } else {
     trace(`Some moves are not risky keeping only these one to be safe`);
