@@ -266,7 +266,7 @@ export function move(gameState: GameState): MoveResponse {
         possibleMoves.down
       ) {
         trace("There is food on the up and it down safe");
-        appealingMoves.addScore("left", FOOD_MAX_BONUS);
+        appealingMoves.addScore("down", FOOD_MAX_BONUS);
       }
     }
   }
