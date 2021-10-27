@@ -309,7 +309,8 @@ export function move(gameState: GameState): MoveResponse {
     MAX_EVALUATION_DEPTH
   );
 
-  trace(`Future state global result = ${JSON.stringify(futureStates)}`);
+  trace(`Future state global result:`);
+  Object.keys(futureStates).map(key => trace(`    ${key}:  ${futureStates[key].stateScore}`));
 
   const response: MoveResponse = {
     move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
