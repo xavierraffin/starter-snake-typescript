@@ -95,15 +95,16 @@ function headColisionDesision(
   trace(
     `Evaluate collision between me ${myLength} : [${myhead.x},${myhead.y}] and enemy of length ${enemyLength} at [${enemyHead.x},${enemyHead.y}]`
   );
-  for (let j = 0; j < possibleMoves.length; j++) {
-    if (possibleMoves[j]) {
-      if (isOnThisSide(enemyHead, myhead, possibleMoves)) {
-        if (enemyLength >= myLength) {
-          trace(`There a deadly collision head on the ${possibleMoves[j]}`);
-          possibleMoves[j] = false;
-        } else {
-          trace(`There a safe kill collision on the ${possibleMoves[j]}`);
-        }
+  const safeMoves = Object.keys(possibleMoves).filter(
+    (key) => possibleMoves[key]
+  );
+  for (let j = 0; j < safeMoves.length; j++) {
+    if (isOnThisSide(enemyHead, myhead, safeMoves[j])) {
+      if (enemyLength >= myLength) {
+        trace(`There a potential deadly collision head on the ${safeMoves[j]}`);
+        possibleMoves[safeMoves[j]] = false;
+      } else {
+        trace(`There a potential safe kill collision on the ${safeMoves[j]}`);
       }
     }
   }
