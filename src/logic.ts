@@ -256,6 +256,9 @@ export function evaluateFutureGameState(
     const takeNorisk = true;
     const bestMoves = returnBestMovesList(safe, appeal, risky, takeNorisk);
 
+
+    trace(`       On this state, safe = ${JSON.stringify(safe)}, risky = ${JSON.stringify(risky)}, appeal = ${JSON.stringify(appeal)}`);
+
     if (safe.length === 0) {
       trace(`     number of safe moves is 0, DEATH gamescore = ${DEATH_SCORE}`);
       return {
