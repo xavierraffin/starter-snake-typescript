@@ -191,6 +191,7 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
       case "left":
           newHead.x--;
     }
+    console.log(you.head);
     you.head = newHead;
     console.log(newHead);
     console.log(you.body);
