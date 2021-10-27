@@ -316,11 +316,10 @@ export function move(gameState: GameState): MoveResponse {
   );
 
   trace(`Future state global result:`);
-  let maximum = futureStates[0].stateScore;
+  let maximum: number | undefined;
   Object.keys(futureStates).map(key => {
-    if(maximum < futureStates[key].stateScore)
-    {
-        maximum < futureStates[key].stateScore;
+    if (maximum === undefined || maximum < futureStates[key].stateScore) {
+      maximum = futureStates[key].stateScore;
     }
     trace(`    ${key}:  ${futureStates[key].stateScore}`)});
 
