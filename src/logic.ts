@@ -57,6 +57,7 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
       ) {
         return true;
       }
+      break;
     case "down":
       if (
         (snakeHead.x == myhead.x && snakeHead.y - 2 == myhead.y) ||
@@ -65,6 +66,7 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
       ) {
         return true;
       }
+      break;
     case "right":
       if (
         (snakeHead.y == myhead.y && snakeHead.x + 2 == myhead.x) ||
@@ -73,6 +75,7 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
       ) {
         return true;
       }
+      break;
     case "left":
       if (
         (snakeHead.y == myhead.y && snakeHead.x - 2 == myhead.x) ||
