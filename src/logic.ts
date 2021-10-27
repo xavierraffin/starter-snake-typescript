@@ -175,7 +175,7 @@ export function scoreGameState(gameState: GameState): number {
 }
 
 export function gameStateAfterThisMove(direction: string, gameState: GameState): GameState {
-    let newState = Object.create(gameState);
+    let newState = JSON.parse(JSON.stringify(gameState));
     let newHead = newState.you.head;
     console.log(gameState.you.head);
     switch (direction) {
@@ -200,7 +200,7 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
 
     console.log(`\n old and new state after move ${direction}`);
     console.log(JSON.stringify(gameState) + "\n");
-    console.log(JSON.stringify(newState) + "\n\n");
+    console.log(JSON.stringify(newState) + "\n");
 
     return newState;
 }
