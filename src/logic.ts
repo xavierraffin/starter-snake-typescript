@@ -89,10 +89,7 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
   return false;
 }
 
-const POTENTIAL_KILL_BONUS = 1;
-const FOOD_MAX_BONUS = 5;
-const CONSIDERABLE_BONUS = 100;
-const DEATH_SCORE = -100;
+
 class ScoredDirection {
   directions: { [key: string]: number } = {
     up: 0,
@@ -166,12 +163,21 @@ function trace(msg: any): void {
   }
 }
 
+const POTENTIAL_KILL_BONUS = 1;
+const FOOD_MAX_BONUS = 5;
+const CONSIDERABLE_BONUS = 100;
+const DEATH_SCORE = -100000;
+const START_NUMBER_OF_SNAKES = 4;
+
 export function scoreGameState(gameState: GameState): number {
   // self health
   // number of enemies (death)
   // self length against enemy length
   // self death
-  return gameState.you.health - ((gameState.board.snakes.length -1) * 100);
+  return (
+    gameState.you.health +
+    (gameState.board.snakes.length - START_NUMBER_OF_SNAKES) * 5
+  );
 }
 
 export function foodInPosition(position: any, gameState: GameState): boolean {
@@ -244,9 +250,9 @@ export function evaluateFutureGameState(
     const takeNorisk = true;
     const bestMoves = returnBestMovesList(safe, appeal, risky, takeNorisk);
 
-    if (bestMoves.length === 0) {
+    if (safe.length === 0) {
       trace(
-        `     number of futures is 0, depth = ${remainingMaxEvaluations}, score = ${DEATH_SCORE}`
+        `     number of safe moves is 0, depth = ${remainingMaxEvaluations}, score = ${DEATH_SCORE}`
       );
       return {
         futureState: futureState,
