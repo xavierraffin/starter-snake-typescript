@@ -179,9 +179,12 @@ export function scoreGameState(gameState: GameState): number {
       gameState.board.snakes.length - START_NUMBER_OF_SNAKES
     }`
   );
+  if (gameState.you.health === 0){
+      return DEATH_SCORE;
+  }
   return (
-    gameState.you.health +
-    (gameState.board.snakes.length - START_NUMBER_OF_SNAKES) * 5
+        gameState.you.health +
+        (gameState.board.snakes.length - START_NUMBER_OF_SNAKES) * 5
   );
 }
 
@@ -256,8 +259,11 @@ export function evaluateFutureGameState(
     const takeNorisk = true;
     const bestMoves = returnBestMovesList(safe, appeal, risky, takeNorisk);
 
-
-    trace(`       On this state, safe = ${JSON.stringify(safe)}, risky = ${JSON.stringify(risky)}, appeal = ${JSON.stringify(appeal)}`);
+    trace(
+      `       On this state, safe = ${JSON.stringify(
+        safe
+      )}, risky = ${JSON.stringify(risky)}, appeal = ${JSON.stringify(appeal)}`
+    );
 
     if (safe.length === 0) {
       trace(`     number of safe moves is 0, DEATH gamescore = ${DEATH_SCORE}`);
@@ -272,20 +278,24 @@ export function evaluateFutureGameState(
       futureState,
       remainingMaxEvaluations - 1
     );
-    if (Object.keys(futureStates).length === 0) {
+    // If a future is a sure death we remove it from exploration
+    const nonFatalFutures = Object.keys(futureStates).filter(
+      (key) => futureStates[key].stateScore !== DEATH_SCORE
+    );
+    const numberOfViableFuture = Object.keys(nonFatalFutures).length;
+    if (numberOfViableFuture === 0) {
       trace(
-        `     number of futureStates is 0, DEATH??? gamescore = ${DEATH_SCORE}`
+        `     number of nonFatalFutures is 0, DEATH??? gamescore = ${DEATH_SCORE}`
       );
-      trace(futureStates);
+      trace(nonFatalFutures);
       return {
         futureState: futureState,
         stateScore: DEATH_SCORE,
       };
-    } 
-    const totalScore = Object.keys(futureStates)
+    }
+    const totalScore = nonFatalFutures
       .map((key) => futureStates[key].stateScore)
       .reduce((accumulator, currentValue) => accumulator + currentValue);
-    const numberOfViableFuture = Object.keys(futureStates).length;
     trace(
       `      number of futures = ${numberOfViableFuture}, gamescore = ${totalScore}`
     );
