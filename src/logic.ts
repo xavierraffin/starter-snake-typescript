@@ -45,16 +45,11 @@ function avoidSnakeBody(body: any[], myhead: any, possibleMoves: any): void {
 }
 
 function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
+  trace(
+    `Evaluate if [${snakeHead.x},${snakeHead.y}] is on my ${direction} : between me [${myhead.x},${myhead.y}]`
+  );
   switch (direction) {
     case "up":
-      if (
-        (snakeHead.x == myhead.x && snakeHead.y - 2 == myhead.y) ||
-        (snakeHead.x == myhead.x - 1 && snakeHead.y - 1 == myhead.y) ||
-        (snakeHead.x == myhead.x + 1 && snakeHead.y - 1 == myhead.y)
-      ) {
-        return true;
-      }
-    case "down":
       if (
         (snakeHead.x == myhead.x && snakeHead.y + 2 == myhead.y) ||
         (snakeHead.x == myhead.x - 1 && snakeHead.y + 1 == myhead.y) ||
@@ -62,19 +57,27 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
       ) {
         return true;
       }
+    case "down":
+      if (
+        (snakeHead.x == myhead.x && snakeHead.y - 2 == myhead.y) ||
+        (snakeHead.x == myhead.x - 1 && snakeHead.y - 1 == myhead.y) ||
+        (snakeHead.x == myhead.x + 1 && snakeHead.y - 1 == myhead.y)
+      ) {
+        return true;
+      }
     case "right":
       if (
-        (snakeHead.y == myhead.y && snakeHead.x - 2 == myhead.x) ||
-        (snakeHead.y == myhead.y - 1 && snakeHead.x - 1 == myhead.x) ||
-        (snakeHead.y == myhead.y + 1 && snakeHead.x - 1 == myhead.x)
+        (snakeHead.y == myhead.y && snakeHead.x + 2 == myhead.x) ||
+        (snakeHead.y == myhead.y - 1 && snakeHead.x + 1 == myhead.x) ||
+        (snakeHead.y == myhead.y + 1 && snakeHead.x + 1 == myhead.x)
       ) {
         return true;
       }
     case "left":
       if (
-        (snakeHead.y == myhead.y && snakeHead.x + 2 == myhead.x) ||
-        (snakeHead.y == myhead.y - 1 && snakeHead.x + 1 == myhead.x) ||
-        (snakeHead.y == myhead.y + 1 && snakeHead.x + 1 == myhead.x)
+        (snakeHead.y == myhead.y && snakeHead.x - 2 == myhead.x) ||
+        (snakeHead.y == myhead.y - 1 && snakeHead.x - 1 == myhead.x) ||
+        (snakeHead.y == myhead.y + 1 && snakeHead.x - 1 == myhead.x)
       ) {
         return true;
       }
