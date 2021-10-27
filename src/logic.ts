@@ -90,6 +90,7 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
 
 const POTENTIAL_KILL_BONUS = 1;
 const FOOD_MAX_BONUS = 5;
+const CONSIDERABLE_BONUS = 100;
 class ScoredDirection {
   directions: { [key: string]: number } = {
     up: 0,
@@ -100,11 +101,14 @@ class ScoredDirection {
   addScore(direction: string, score: number) {
     this.directions[direction] += score;
   }
-  getMinimumDirections() {
-    const minimum = Math.min(
-      ...Object.keys(this.directions).map((key) => this.directions[key])
+
+  // WARNING: This function change the values
+  getMaxAmongTheseDirections(possibleDirections: string[]) {
+    possibleDirections.forEach(
+      (value) => (this.directions[value] += CONSIDERABLE_BONUS)
     );
-    return this.getDirectionsOfValue(minimum);
+    trace(`CONSIDERABLE_BONUS applied ${JSON.stringify(this.directions)}`);
+    return this.getMaximumDirections();
   }
   getMaximumDirections() {
     const maximum = Math.max(
@@ -315,11 +319,18 @@ function returnBestMovesList(
   }
   trace(`Now exploring ${JSON.stringify(directionWorthExploring)}`);
 
-  const maxAppealingDirections = appealingMoves.getMaximumDirections();
-  trace(`maxAppealingDirections = ${JSON.stringify(maxAppealingDirections)}`);
-  const bestMoves = directionWorthExploring.filter((value) =>
-    maxAppealingDirections.includes(value)
+  const maxAppealingDirections = appealingMoves.getMaxAmongTheseDirections(
+    directionWorthExploring
   );
-  trace(`bestMoves = ${JSON.stringify(bestMoves)}`);
-  return bestMoves;
+  trace(`maxAppealingDirections = ${JSON.stringify(maxAppealingDirections)}`);
+  if (maxAppealingDirections.length === 0) {
+    trace(
+      `No possible move are appealing returning safeMoves ${JSON.stringify(
+        safeMoves
+      )}`
+    );
+    return safeMoves;
+  }
+  trace(`bestMoves = ${JSON.stringify(maxAppealingDirections)}`);
+  return maxAppealingDirections;
 }
