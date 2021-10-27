@@ -147,7 +147,6 @@ function headColisionDesision(
     if (isOnThisSide(enemyHead, myhead, safeMoves[j])) {
       if (enemyLength >= myLength) {
         trace(`There a potential deadly collision head on the ${safeMoves[j]}`);
-        possibleMoves[safeMoves[j]] = false;
         riskyMoves.addScore(safeMoves[j], POTENTIAL_KILL_BONUS);
       } else {
         trace(`There a potential safe kill collision on the ${safeMoves[j]}`);
