@@ -164,7 +164,48 @@ function trace(msg: any): void {
   }
 }
 
+export function evaluateFutureGameState(
+  direction: string,
+  gameState: GameState
+): GameState {
+  return gameState;
+};
+
+export function evaluateFutureGameStates(
+  directions: string[],
+  gameState: GameState
+): GameState[] {
+  const states: GameState[] = new Array();
+  for (let i = 0; i < directions.length; i++) {
+    states.push(evaluateFutureGameState(directions[i], gameState));
+  }
+  return states;
+};
+
 export function move(gameState: GameState): MoveResponse {
+    const { safe, risky, appeal } = moveEvaluator(gameState);
+      const bestMoves = returnBestMovesList(safe, appeal, risky);
+
+      const futureStates: GameState[] = evaluateFutureGameStates(
+        bestMoves,
+        gameState
+      );
+
+      const response: MoveResponse = {
+        move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
+      };
+
+      console.log(
+        `${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`
+      );
+      return response;
+}
+
+export function moveEvaluator(gameState: GameState): {
+  safe: string[];
+  risky: ScoredDirection;
+  appeal: ScoredDirection;
+} {
   let possibleMoves: { [key: string]: boolean } = {
     up: true,
     down: true,
@@ -181,34 +222,34 @@ export function move(gameState: GameState): MoveResponse {
   // TODO: Step 1 - Don't hit walls.
   // Use information in gameState to prevent your Battlesnake from moving beyond the boundaries of the board.
   if (myHead.x == gameState.board.width - 1) {
-    trace("There is a wall on the right");
+    // trace("There is a wall on the right");
     possibleMoves.right = false;
   }
   if (myHead.x == 0) {
-    trace("There is a wall on the left");
+    // trace("There is a wall on the left");
     possibleMoves.left = false;
   }
   if (myHead.y == 0) {
-    trace("There is a wall on the down");
+    // trace("There is a wall on the down");
     possibleMoves.down = false;
   }
   if (myHead.y == gameState.board.height - 1) {
-    trace("There is a wall on the up");
+    // trace("There is a wall on the up");
     possibleMoves.up = false;
   }
-  trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
+  // trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
 
   // TODO: Step 2 - Don't hit yourself.
   // Use information in gameState to prevent your Battlesnake from colliding with itself.
 
-  trace(" ===== Step 2 - Don't hit yourself =====");
+  // trace(" ===== Step 2 - Don't hit yourself =====");
   const mybody = gameState.you.body;
   avoidSnakeBody(mybody, myHead, possibleMoves);
-  trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
+  // trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
 
   // TODO: Step 3 - Don't collide with others.
   // Use information in gameState to prevent your Battlesnake from colliding with others.
-  trace(" ===== Step 3 - Don't collide with others =====");
+  // trace(" ===== Step 3 - Don't collide with others =====");
   let riskyMoves = new ScoredDirection();
   let appealingMoves = new ScoredDirection();
   for (let i = 0; i < gameState.board.snakes.length; i++) {
@@ -226,7 +267,7 @@ export function move(gameState: GameState): MoveResponse {
       appealingMoves
     );
   }
-  trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
+  // trace(`Possible moves = ${JSON.stringify(possibleMoves)}`);
 
   // TODO: Step 4 - Find food.
   // Use information in gameState to seek out and find food.
@@ -235,24 +276,24 @@ export function move(gameState: GameState): MoveResponse {
   for (let i = 0; i < gameState.board.food.length; i++) {
     if (myHead.y == gameState.board.food[i].y) {
       if (myHead.x == gameState.board.food[i].x - 1 && possibleMoves.right) {
-        trace("There is food on the right and it is safe");
+        // trace("There is food on the right and it is safe");
         appealingMoves.addScore("right", FOOD_MAX_BONUS);
       } else if (
         myHead.x == gameState.board.food[i].x + 1 &&
         possibleMoves.left
       ) {
-        trace("There is food on the left and it is safe");
+        // trace("There is food on the left and it is safe");
         appealingMoves.addScore("left", FOOD_MAX_BONUS);
       }
     } else if (myHead.x == gameState.board.food[i].x) {
       if (myHead.y == gameState.board.food[i].y - 1 && possibleMoves.up) {
-        trace("There is food on the up and it is safe");
+        // trace("There is food on the up and it is safe");
         appealingMoves.addScore("up", FOOD_MAX_BONUS);
       } else if (
         myHead.y == gameState.board.food[i].y + 1 &&
         possibleMoves.down
       ) {
-        trace("There is food on the up and it down safe");
+        // trace("There is food on the down and it is safe");
         appealingMoves.addScore("down", FOOD_MAX_BONUS);
       }
     }
@@ -260,19 +301,11 @@ export function move(gameState: GameState): MoveResponse {
 
   // Finally, choose a move from the available safe moves.
   // TODO: Step 5 - Select a move to make based on strategy, rather than random.
-  trace(" ===== Step 5 - Choose a move =====");
+  // trace(" ===== Step 5 - Choose a move =====");
   const safeMoves = Object.keys(possibleMoves).filter(
     (key) => possibleMoves[key]
   );
-
-  const bestMoves = returnBestMovesList(safeMoves, appealingMoves, riskyMoves);
-
-  const response: MoveResponse = {
-    move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
-  };
-
-  console.log(`${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`);
-  return response;
+  return { safe: safeMoves, appeal: appealingMoves, risky: riskyMoves };
 }
 
 function returnBestMovesList(
