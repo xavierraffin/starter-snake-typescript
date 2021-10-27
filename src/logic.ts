@@ -161,7 +161,7 @@ const DEBUG = true;
 
 function trace(msg: any): void {
   if (DEBUG) {
-    console.log(msg);
+    console.error(msg);
   }
 }
 
@@ -246,14 +246,12 @@ export function evaluateFutureGameStates(
   return states;
 };
 
-const MAX_STEP_EVALUATIONS = 1;
-
 export function move(gameState: GameState): MoveResponse {
     console.log(gameState);
     const { safe, risky, appeal } = moveEvaluator(gameState);
       const bestMoves = returnBestMovesList(safe, appeal, risky);
 
-      const futureStates = evaluateFutureGameStates(bestMoves, gameState, MAX_STEP_EVALUATIONS);
+      const futureStates = evaluateFutureGameStates(bestMoves, gameState, 1);
 
       trace(`Future state global result = ${JSON.stringify(futureStates)}`);
 
