@@ -179,14 +179,14 @@ export function evaluateFutureGameState(
   remainingMaxEvaluations: number
 ): { futureState: GameState; stateScore: number } {
   trace(
-    `   evaluateFutureGameState - depth = ${remainingMaxEvaluations}, direction = ${direction}`
+    `   evaluateFutureGameState  depth = ${remainingMaxEvaluations}, direction = ${direction}`
   );
   const futureState = gameState;
   // TODO calculate future state just updating me
   if (remainingMaxEvaluations == 0) {
     const score = scoreGameState(futureState);
     trace(
-      `       gamescore = ${score} - depth = ${remainingMaxEvaluations}, direction = ${direction}`
+      `       gamescore = ${score}    - depth = ${remainingMaxEvaluations}, direction = ${direction}`
     );
     return {
       futureState: futureState,
@@ -248,7 +248,7 @@ export function evaluateFutureGameStates(
   return states;
 }
 
-const MAX_EVALUATION_DEPTH = 2;
+const MAX_EVALUATION_DEPTH = 1;
 
 export function move(gameState: GameState): MoveResponse {
   trace("\n === start Move ===");
