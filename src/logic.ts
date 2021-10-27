@@ -83,18 +83,23 @@ function isOnThisSide(snakeHead: any, myhead: any, direction: string): boolean {
 }
 
 function headColisionDesision(
-  enemyHead: any[],
+  enemyHead: any,
   enemyLength: number,
   myhead: any,
   myLength: number,
   possibleMoves: any
 ): void {
+  trace(
+    `Evaluate collision between me ${myLength} : [${myhead.x},${myhead.y}] and enemy of length ${enemyLength} at [${enemyHead.x},${enemyHead.y}]`
+  );
   for (let j = 0; j < possibleMoves.length; j++) {
     if (possibleMoves[j]) {
       if (isOnThisSide(enemyHead, myhead, possibleMoves)) {
         if (enemyLength >= myLength) {
-          trace(`There a possible collision head on the ${possibleMoves[j]}`);
+          trace(`There a deadly collision head on the ${possibleMoves[j]}`);
           possibleMoves[j] = false;
+        } else {
+          trace(`There a safe kill collision on the ${possibleMoves[j]}`);
         }
       }
     }
@@ -168,9 +173,12 @@ export function move(gameState: GameState): MoveResponse {
   // Use information in gameState to prevent your Battlesnake from colliding with others.
   trace(" ===== Step 3 - Don't collide with others =====");
   for (let i = 0; i < gameState.board.snakes.length; i++) {
+    if (gameState.board.snakes[i].id == gameState.you.id) {
+      continue;
+    }
     avoidSnakeBody(gameState.board.snakes[i].body, myHead, possibleMoves);
     headColisionDesision(
-      gameState.board.snakes[i].body,
+      gameState.board.snakes[i].head,
       gameState.board.snakes[i].length,
       myHead,
       gameState.you.length,
@@ -211,7 +219,6 @@ export function move(gameState: GameState): MoveResponse {
       }
     }
   }
-
 
   // Finally, choose a move from the available safe moves.
   // TODO: Step 5 - Select a move to make based on strategy, rather than random.
