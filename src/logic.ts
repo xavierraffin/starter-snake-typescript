@@ -178,12 +178,19 @@ export function evaluateFutureGameState(
   gameState: GameState,
   remainingMaxEvaluations: number
 ): { futureState: GameState; stateScore: number } {
+    trace(
+      `   evaluateFutureGameState - depth = ${remainingMaxEvaluations}, direction = ${direction}`
+    );
   const futureState = gameState;
   // TODO calculate future state just updating me
   if (remainingMaxEvaluations == 0){
+        const score = scoreGameState(futureState);
+        trace(
+        `       gamescore = ${score} - depth = ${remainingMaxEvaluations}, direction = ${direction}`
+        );
         return {
-        futureState: futureState,
-        stateScore: scoreGameState(futureState),
+          futureState: futureState,
+          stateScore: score,
         };
     } else {
         const { safe, risky, appeal } = moveEvaluator(futureState);
@@ -192,7 +199,7 @@ export function evaluateFutureGameState(
 
         if (bestMoves.length === 0) {
             trace(
-            `depth = ${remainingMaxEvaluations}, number of futures is 0, score = ${DEATH_SCORE}`
+            `      depth = ${remainingMaxEvaluations}, number of futures is 0, score = ${DEATH_SCORE}`
             );
             return {
               futureState: futureState,
@@ -209,9 +216,9 @@ export function evaluateFutureGameState(
           .reduce(
             (accumulator, currentValue) => accumulator + currentValue
           );
-        const numberOfViableFuture = futureStates.length;
+        const numberOfViableFuture = Object.keys(futureStates).length;
         trace(
-          `depth = ${remainingMaxEvaluations}, number of futures = ${numberOfViableFuture}, score = ${totalScore}`
+          `      depth = ${remainingMaxEvaluations}, number of futures = ${numberOfViableFuture}, score = ${totalScore}`
         );
         return {
           futureState: futureState,
@@ -225,6 +232,9 @@ export function evaluateFutureGameStates(
   gameState: GameState,
   remainingMaxEvaluations: number
 ): { [direction: string]: {futureState: GameState; stateScore: number; }} {
+    trace(
+      ` evaluateFutureGameStates : depth = ${remainingMaxEvaluations}, directions = ${JSON.stringify(directions)}`
+    );
   const states: { [direction: string]: {futureState: GameState; stateScore: number; }} = {};
   for (let i = 0; i < directions.length; i++) {
     states[directions[i]] = evaluateFutureGameState(
