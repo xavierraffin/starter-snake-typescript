@@ -161,7 +161,7 @@ const DEBUG = true;
 
 function trace(msg: any): void {
   if (DEBUG) {
-    process.stdout.write(msg + "\n");
+    console.log(msg);
   }
 }
 
@@ -170,7 +170,37 @@ export function scoreGameState(gameState: GameState): number {
   // number of enemies (death)
   // self length against enemy length
   // self death
-  return gameState.you.health - gameState.board.snakes.length * 100;
+  return gameState.you.health - ((gameState.board.snakes.length -1) * 100);
+}
+
+export function gameStateAfterThisMove(direction: string, gameState: GameState): GameState {
+    let newState = gameState;
+    let you = gameState.you;
+    let newHead = gameState.you.head;
+    switch (direction) {
+      case "up":
+          newHead.y++;
+          break;
+      case "down":
+          newHead.y--;
+          break;
+      case "right":
+          newHead.x++;
+          break;
+      case "left":
+          newHead.x--;
+    }
+    you.head = newHead;
+    you.body.pop();
+    you.body.push(you.head);
+    newState.you = you;
+    newState.board.snakes[0] = you;
+
+    console.log(`\n old and new state after move ${direction}`);
+    console.log(gameState);
+    console.log(newState);
+
+    return newState;
 }
 
 export function evaluateFutureGameState(
@@ -181,12 +211,12 @@ export function evaluateFutureGameState(
   trace(
     `   evaluateFutureGameState  depth = ${remainingMaxEvaluations}, direction = ${direction}`
   );
-  const futureState = gameState;
+  const futureState = gameStateAfterThisMove(direction, gameState);
   // TODO calculate future state just updating me
   if (remainingMaxEvaluations == 0) {
     const score = scoreGameState(futureState);
     trace(
-      `       gamescore = ${score}    - depth = ${remainingMaxEvaluations}, direction = ${direction}`
+      `       gamescore = ${score}   - depth = ${remainingMaxEvaluations}, direction = ${direction}`
     );
     return {
       futureState: futureState,
@@ -199,7 +229,7 @@ export function evaluateFutureGameState(
 
     if (bestMoves.length === 0) {
       trace(
-        `      depth = ${remainingMaxEvaluations}, number of futures is 0, score = ${DEATH_SCORE}`
+        `     number of futures is 0, depth = ${remainingMaxEvaluations}, score = ${DEATH_SCORE}`
       );
       return {
         futureState: futureState,
