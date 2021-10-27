@@ -1,3 +1,4 @@
+import { exit } from "process";
 import { InfoResponse, GameState, MoveResponse, Game } from "./types";
 
 export function info(): InfoResponse {
@@ -191,8 +192,11 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
           newHead.x--;
     }
     you.head = newHead;
+    console.log(you.body);
     you.body.pop();
     you.body.unshift(you.head);
+    console.log(you.body);
+    exit;
     newState.you = you;
     newState.board.snakes[0] = you;
 
