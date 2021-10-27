@@ -251,7 +251,7 @@ export function evaluateFutureGameStates(
 const MAX_EVALUATION_DEPTH = 2;
 
 export function move(gameState: GameState): MoveResponse {
-  trace(gameState);
+  console.log(gameState);
   const { safe, risky, appeal } = moveEvaluator(gameState);
   const bestMoves = returnBestMovesList(safe, appeal, risky);
 
