@@ -177,7 +177,6 @@ export function scoreGameState(gameState: GameState): number {
 export function gameStateAfterThisMove(direction: string, gameState: GameState): GameState {
     let newState = JSON.parse(JSON.stringify(gameState));
     let newHead = newState.you.head;
-    console.log(gameState.you.head);
     switch (direction) {
       case "up":
           newHead.y++;
@@ -196,7 +195,6 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
     newState.you.body.pop();
     newState.you.body.unshift(newHead);
     newState.board.snakes[0] = newState.you;
-    console.log(newState.you.body);
 
     console.log(`\n old and new state after move ${direction}`);
     console.log(JSON.stringify(gameState) + "\n");
@@ -284,7 +282,7 @@ const MAX_EVALUATION_DEPTH = 1;
 
 export function move(gameState: GameState): MoveResponse {
   trace("\n === start Move ===");
-  console.log(gameState);
+  console.log(JSON.stringify(gameState));
   const { safe, risky, appeal } = moveEvaluator(gameState);
   const bestMoves = returnBestMovesList(safe, appeal, risky);
 
@@ -318,7 +316,6 @@ export function moveEvaluator(gameState: GameState): {
 
   // Step 0: Don't let your Battlesnake move back on it's own neck
   const myHead = gameState.you.head;
-  const myNeck = gameState.you.body[1];
 
   // TODO: Step 1 - Don't hit walls.
   // Use information in gameState to prevent your Battlesnake from moving beyond the boundaries of the board.
