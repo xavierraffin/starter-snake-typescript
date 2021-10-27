@@ -161,7 +161,7 @@ const DEBUG = true;
 
 function trace(msg: any): void {
   if (DEBUG) {
-    process.stdout.write(msg);
+    process.stdout.write(msg + "\n");
   }
 }
 
@@ -267,7 +267,7 @@ export function move(gameState: GameState): MoveResponse {
     move: bestMoves[Math.floor(Math.random() * bestMoves.length)],
   };
 
-  console.log(`${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`);
+  trace(`${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`);
   return response;
 }
 
