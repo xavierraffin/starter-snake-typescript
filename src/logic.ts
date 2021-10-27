@@ -497,18 +497,19 @@ function returnBestMovesList(
   }
   // trace(`Now exploring ${JSON.stringify(directionWorthExploring)}`);
 
+  return directionWorthExploring;
+
+  // TEST: ignore appealing calls: food and kills, this will be in prediction
+/*
   const maxAppealingDirections = appealingMoves.getMaxAmongTheseDirections(
     directionWorthExploring
   );
   // trace(`maxAppealingDirections = ${JSON.stringify(maxAppealingDirections)}`);
   if (maxAppealingDirections.length === 0) {
-    /* trace(
-      `No possible move are appealing returning safeMoves ${JSON.stringify(
-        safeMoves
-      )}`
-    );*/
+    // trace(`No possible move are appealing returning safeMoves ${JSON.stringify(safeMoves)}`);
     return safeMoves;
   }
   // trace(`bestMoves = ${JSON.stringify(maxAppealingDirections)}`);
   return maxAppealingDirections;
+  */
 }
