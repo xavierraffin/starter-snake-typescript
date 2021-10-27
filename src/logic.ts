@@ -174,6 +174,11 @@ export function scoreGameState(gameState: GameState): number {
   // number of enemies (death)
   // self length against enemy length
   // self death
+  trace(
+    `      health=${gameState.you.health}, nbSnake=s${
+      gameState.board.snakes.length - START_NUMBER_OF_SNAKES
+    }`
+  );
   return (
     gameState.you.health +
     (gameState.board.snakes.length - START_NUMBER_OF_SNAKES) * 5
@@ -303,9 +308,10 @@ export function evaluateFutureGameStates(
     [direction: string]: { futureState: GameState; stateScore: number };
   } = {};
   for (let i = 0; i < directions.length; i++) {
-    directionHistory.push(directions[i]);
+    const newHistory = {...directionHistory};
+    newHistory.push(directions[i]);
     states[directions[i]] = evaluateFutureGameState(
-      directionHistory,
+      newHistory,
       directions[i],
       gameState,
       remainingMaxEvaluations
