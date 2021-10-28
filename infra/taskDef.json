@@ -1,0 +1,32 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "killer-whale",
+            "image": "141483740788.dkr.ecr.us-west-2.amazonaws.com/killer-whale:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 8080,
+                    "protocol": "tcp",
+                    "containerPort": 8080
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "killer-whale",
+                    "awslogs-region": "us-west-2",
+                    "awslogs-stream-prefix": "workers"
+                }
+            },
+            "memory": 1200,
+            "cpu": 512
+        }
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "networkMode": "host",
+    "family": "killer-whale",
+    "taskRoleArn": "arn:aws:iam::141483740788:role/BattlesnakeRole"
+}

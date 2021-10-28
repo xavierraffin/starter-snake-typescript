@@ -1,0 +1,21 @@
+{
+    "serviceName": "killer-whale",
+    "taskDefinition": "killer-whale:1",
+    "cluster": "Battlesnake",
+    "desiredCount": 1,
+    "launchType": "EC2",
+    "schedulingStrategy": "REPLICA",
+    "placementStrategy": [
+        {
+            "field": "instanceId",
+            "type": "spread"
+        }
+    ],
+    "deploymentController": {
+        "type": "ECS"
+    },
+    "deploymentConfiguration": {
+        "maximumPercent": 100,
+        "minimumHealthyPercent": 0
+    }
+}

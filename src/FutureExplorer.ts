@@ -26,6 +26,9 @@ export function evaluateFutureGameState(
     indent
   );
   const response = gameStateAfterThisMove(direction, gameState);
+  // TODO: here
+  // Move all snakes in every direction except backward (and body direct colision + wall colision?)
+  // Then add a recursion level
   const futureState = response.gamestate!;
   if (response.snakeDied) {
     return {
