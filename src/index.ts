@@ -1,6 +1,8 @@
 import express, { Request, Response } from "express"
 
-import { info, start, move, end } from "./logic";
+import { info, start, move, end } from "./routes";
+
+import { trace, logLevel as log } from "./logger";
 
 const app = express()
 app.use(express.json())
@@ -25,5 +27,5 @@ app.post("/end", (req: Request, res: Response) => {
 
 // Start the Express server
 app.listen(port, () => {
-    console.log(`Starting Battlesnake Server at http://0.0.0.0:${port}...`)
+    trace(log.INFO,`Starting Battlesnake Server at http://0.0.0.0:${port}...`);
 });
