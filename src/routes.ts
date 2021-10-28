@@ -43,7 +43,7 @@ export async function replayGameState(body: any): Promise<MoveResponse> {
   trace(log.INFO, `Downloading ${url}`);
   const response = await axios.get(url);
   const frames = response.data;
-  const gameState: GameState = frameTranslator(frames);
+  const gameState: GameState = frameTranslator(frames, body.gameId);
 
   return move(gameState);
 }
