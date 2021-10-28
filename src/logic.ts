@@ -200,7 +200,7 @@ export function foodInPosition(position: any, gameState: GameState): boolean {
   return false;
 }
 
-export function gameStateAfterThisMove(direction: string, gameState: GameState): GameState {
+export function gameStateAfterThisMove(direction: string, gameState: GameState): { gamestate?: GameState, iamDead: boolean } {
     let newState = JSON.parse(JSON.stringify(gameState));
     let newHead = newState.you.head;
     switch (direction) {
@@ -222,6 +222,9 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
     } else {
       newState.you.body.pop();
       newState.you.health--;
+      if(newState.you.health === 0){
+          return { iamDead: true };
+      }
     }
     newState.you.body.unshift(newHead);
     newState.board.snakes[0] = newState.you;
@@ -231,7 +234,7 @@ export function gameStateAfterThisMove(direction: string, gameState: GameState):
     console.log(JSON.stringify(gameState) + "\n");
     console.log(JSON.stringify(newState) + "\n");
     */
-    return newState;
+    return { gamestate: newState, iamDead: false };
 }
 
 export function evaluateFutureGameState(
@@ -243,13 +246,18 @@ export function evaluateFutureGameState(
   trace(
     `   evaluateFutureGameState  depth = ${remainingMaxEvaluations}, direction = ${JSON.stringify(direction)}, history = ${JSON.stringify(directionHistory)}`
   );
-  const futureState = gameStateAfterThisMove(direction, gameState);
-  // TODO calculate future state just updating me
+  const response = gameStateAfterThisMove(direction, gameState);
+  const futureState = response.gamestate!;
+  if (response.iamDead) {
+      return {
+        futureState: futureState,
+        stateScore: DEATH_SCORE,
+      };
+  }
+  
   if (remainingMaxEvaluations == 0) {
     const score = scoreGameState(futureState);
-    trace(
-      `       gamescore = ${score}`
-    );
+    trace(`       gamescore = ${score}`);
     return {
       futureState: futureState,
       stateScore: score,
