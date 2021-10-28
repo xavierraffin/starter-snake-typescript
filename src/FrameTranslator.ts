@@ -17,7 +17,7 @@ export function frameTranslator(frames: any, gameId: string): GameState {
         trace(log.INFO, `I found ${SNAKE_NAKE} !!!\n`);
         you = translateSnake(frmSnake);
     } else {
-        snakes.push(translateSnake(frmSnake));
+        if (frmSnake.Death == null) snakes.push(translateSnake(frmSnake));
     }
   });
 
@@ -43,7 +43,7 @@ export function frameTranslator(frames: any, gameId: string): GameState {
     you: you!,
   };
 
-  //console.log(game);
+  console.log(game.board.snakes);
 
   return game;
 }
