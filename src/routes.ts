@@ -12,11 +12,16 @@ import { trace, logLevel as log } from "./logger";
 
 import { MAX_EVALUATION_DEPTH } from "./constants";
 
+
+import { frameTranslator } from "./FrameTranslator";
+
+import axios from "axios";
+
 export function info(): InfoResponse {
   trace(log.INFO, "INFO");
   const response: InfoResponse = {
     apiversion: "1",
-    author: "Gabriel",
+    author: "xavierraffin",
     color: "#4ACB7C",
     head: "pixel",
     tail: "pixel",
@@ -30,6 +35,17 @@ export function start(gameState: GameState): void {
 
 export function end(gameState: GameState): void {
   trace(log.INFO, `${gameState.game.id} END\n`);
+}
+
+export async function replayGameState(body: any): Promise<MoveResponse> {
+  // Visualise https://play.battlesnake.com/g/a94caca6-6db6-4958-a1f0-466f41a89895/
+  const url = `https://engine.battlesnake.com/games/${body.gameId}/frames?limit=1&offset=${body.turn}`;
+  trace(log.INFO, `Downloading ${url}`);
+  const response = await axios.get(url);
+  const frames = response.data;
+  const gameState: GameState = frameTranslator(frames);
+
+  return move(gameState);
 }
 
 export function move(gameState: GameState): MoveResponse {

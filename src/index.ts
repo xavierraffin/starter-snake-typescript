@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express"
 
-import { info, start, move, end } from "./routes";
+import { info, start, move, end, replayGameState } from "./routes";
 
 import { trace, logLevel as log } from "./logger";
 
@@ -19,6 +19,10 @@ app.post("/start", (req: Request, res: Response) => {
 
 app.post("/move", (req: Request, res: Response) => {
     res.send(move(req.body))
+});
+
+app.post("/replay", async (req: Request, res: Response) => {
+   res.send(await replayGameState(req.body));
 });
 
 app.post("/end", (req: Request, res: Response) => {

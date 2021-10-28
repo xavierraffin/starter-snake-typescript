@@ -27,7 +27,7 @@ export function evaluateFutureGameState(
   );
   const response = gameStateAfterThisMove(direction, gameState);
   const futureState = response.gamestate!;
-  if (response.iamDead) {
+  if (response.snakeDied) {
     return {
       futureState: futureState,
       stateScore: DEATH_SCORE,

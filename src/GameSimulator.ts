@@ -7,8 +7,8 @@ import { foodInPosition } from "./utils";
 
 export function gameStateAfterThisMove(
   direction: Direction,
-  gameState: GameState
-): { gamestate?: GameState; iamDead: boolean } {
+  gameState: GameState,
+): { gamestate?: GameState; snakeDied: boolean } {
   // TODO make object copy faster
   let newState = JSON.parse(JSON.stringify(gameState));
   switch (direction) {
@@ -33,11 +33,11 @@ export function gameStateAfterThisMove(
     newState.you.health--;
     if (newState.you.health === 0) {
       // Starvation
-      return { iamDead: true };
+      return { snakeDied: true };
     }
   }
   newState.you.body.unshift(newState.you.head);
   newState.board.snakes[0] = newState.you;
 
-  return { gamestate: newState, iamDead: false };
+  return { gamestate: newState, snakeDied: false };
 }
