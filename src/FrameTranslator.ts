@@ -43,8 +43,6 @@ export function frameTranslator(frames: any, gameId: string): GameState {
     you: you!,
   };
 
-  console.log(game.board.snakes);
-
   return game;
 }
 
