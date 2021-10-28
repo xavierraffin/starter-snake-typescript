@@ -1,4 +1,4 @@
-FROM node:17-alpine
+FROM public.ecr.aws/bitnami/node:16-prod
 
 ARG NODE_ENV
 ARG DEBUG_LEVEL
