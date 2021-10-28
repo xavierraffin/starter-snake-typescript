@@ -17,7 +17,7 @@ export function info(): InfoResponse {
   const response: InfoResponse = {
     apiversion: "1",
     author: "Gabriel",
-    color: "#00FF00",
+    color: "#4ACB7C",
     head: "pixel",
     tail: "pixel",
   };
