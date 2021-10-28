@@ -1,0 +1,3 @@
+export const DEATH_SCORE = -100000;
+export const START_NUMBER_OF_SNAKES = 4;
+export const MAX_EVALUATION_DEPTH = 3;
