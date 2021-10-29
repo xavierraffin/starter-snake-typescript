@@ -1,13 +1,13 @@
 import {
   GameState,
   Direction,
-} from "./types";
+} from "../types";
 
 import { DEATH_SCORE, MAX_EVALUATION_DEPTH } from "./constants";
 import { scoreGameState } from "./GameScoreEvaluator";
 import { gameStateAfterThisMove } from "./GameSimulator";
 import { returnBestMovesList, findNextMove } from "./SingleMoveEvaluator";
-import { trace, logLevel as log } from "./logger";
+import { trace, logLevel as log } from "../logger";
 
 const fileLogLevel = log.INFO;
 

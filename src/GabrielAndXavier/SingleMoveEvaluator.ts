@@ -3,7 +3,7 @@ import {
   GameState,
   DirectionFlags,
   Direction,
-} from "./types";
+} from "../types";
 
 import {
   avoidSnakeBody,

@@ -6,7 +6,7 @@ import {
   Direction,
   DirectionScores,
   GameState,
-} from "./types";
+} from "../types";
 
 export class ScoredDirection {
   directions: DirectionScores = {

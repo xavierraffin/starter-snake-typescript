@@ -1,7 +1,7 @@
 import {
   Direction,
   GameState,
-} from "./types";
+} from "../types";
 
 import { foodInPosition } from "./utils";
 
