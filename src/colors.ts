@@ -21,7 +21,7 @@ export const killerSharkInfo: InfoResponse = {
 export const arloAndKim1: InfoResponse = {
   apiversion: "1",
   author: "???",
-  color: "#4ACB7C",
+  color: "#FF0000",
   head: "pixel",
   tail: "pixel",
 };
@@ -29,7 +29,7 @@ export const arloAndKim1: InfoResponse = {
 export const arloAndKim2: InfoResponse = {
   apiversion: "1",
   author: "???",
-  color: "#4ACB7C",
+  color: "#0000FF",
   head: "pixel",
   tail: "pixel",
 };
