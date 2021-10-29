@@ -153,3 +153,15 @@ export function foodInPosition(position: Coord, gameState: GameState): boolean {
   }
   return false;
 }
+
+export function hasardInPosition(position: Coord, gameState: GameState): boolean {
+  for (let i = 0; i < gameState.board.hazards.length; i++) {
+    if (
+      gameState.board.hazards[i].x == position.x &&
+      gameState.board.hazards[i].y == position.y
+    ) {
+      return true;
+    }
+  }
+  return false;
+}

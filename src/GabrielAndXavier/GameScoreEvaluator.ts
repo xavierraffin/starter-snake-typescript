@@ -1,7 +1,6 @@
 import {
   GameState,
 } from "../types";
-
 import { START_NUMBER_OF_SNAKES, DEATH_SCORE } from "./constants";
 import { trace, logLevel as log } from "../logger";
 

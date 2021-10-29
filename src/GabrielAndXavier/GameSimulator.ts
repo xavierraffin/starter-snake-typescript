@@ -1,13 +1,10 @@
-import {
-  Direction,
-  GameState,
-} from "../types";
+import { Direction, GameState } from "../types";
 
-import { foodInPosition } from "./utils";
+import { foodInPosition, hasardInPosition } from "./utils";
 
 export function gameStateAfterThisMove(
   direction: Direction,
-  gameState: GameState,
+  gameState: GameState
 ): { gamestate?: GameState; snakeDied: boolean } {
   // TODO make object copy faster
   let newState = JSON.parse(JSON.stringify(gameState));
@@ -28,9 +25,13 @@ export function gameStateAfterThisMove(
     // Restore health and make longer if food
     newState.you.health = 100;
   } else {
+    if (hasardInPosition(newState.you.head, gameState)) {
+      newState.you.health = newState.you.health - 16;
+    } else {
+      newState.you.health--;
+    }
     // Retract tail
     newState.you.body.pop();
-    newState.you.health--;
     if (newState.you.health === 0) {
       // Starvation
       return { snakeDied: true };

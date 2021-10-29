@@ -1,9 +1,9 @@
-import { trace, logLevel as log, logLevel } from "../logger";
+import { trace, logLevel as log } from "../logger";
 import { GameState, MoveResponse } from "../types";
 
 export function move(gameState: GameState): MoveResponse {
 
-    trace(logLevel.INFO, ` === move Arlo snake ===`);
+    trace(log.INFO, ` === move Arlo snake ===`);
 
     let possibleMoves: { [key: string]: boolean } = {
       up: true,
@@ -49,7 +49,8 @@ export function move(gameState: GameState): MoveResponse {
       move: safeMoves[Math.floor(Math.random() * safeMoves.length)],
     };
 
-    trace(logLevel.INFO,
+    trace(
+      log.INFO,
       `${gameState.game.id} MOVE ${gameState.turn}: ${response.move}`
     );
     return response;
