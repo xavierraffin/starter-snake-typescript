@@ -57,9 +57,9 @@ export async function move(body: any): Promise<MoveResponse> {
   switch (process.env.SNAKE_INTERNAL_NAME) {
     case "killer-whale":
     case "killer-shark":
-      return GabrielMove(body);
+      return await GabrielMove(body);
     case "arlo-and-kim-1":
     default:
-      return ArloMove(body);
+      return await ArloMove(body);
   }
 }
