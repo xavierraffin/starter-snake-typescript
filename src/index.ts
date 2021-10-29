@@ -20,8 +20,8 @@ app.post("/start", (req: Request, res: Response) => {
     res.send(start(req.body))
 });
 
-app.post("/move", (req: Request, res: Response) => {
-    res.send(move(req.body))
+app.post("/move", async (req: Request, res: Response) => {
+  res.send(await move(req.body));
 });
 
 app.post("/replay", async (req: Request, res: Response) => {
