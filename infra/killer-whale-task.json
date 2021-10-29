@@ -19,7 +19,7 @@
                     "awslogs-stream-prefix": "workers"
                 }
             },
-            "memory": 1200,
+            "memory": 114,
             "cpu": 512
         }
     ],

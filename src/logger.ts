@@ -6,7 +6,10 @@ export enum logLevel {
   ERROR = 4,
 }
 
-const LOG_LEVEL = logLevel.VERBOSE;
+let LOG_LEVEL = logLevel.DEBUG;
+if (process.env.LOG_LEVEL) {
+  LOG_LEVEL = parseInt(process.env.LOG_LEVEL) as logLevel;
+}
 
 export function trace(
   level: logLevel,
