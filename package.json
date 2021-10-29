@@ -1,9 +1,10 @@
 {
   "name": "starter-snake-typescript",
   "version": "1.0.0",
-  "description": "A simple Battlesnake written in TypeScript",
+  "description": "Snakes for Battlesnake",
   "scripts": {
-    "build": "tsc",
+    "build-prep": "bash build-prep.bash",
+    "build": "npm run build-prep && tsc",
     "prestart": "npm run build",
     "start": "node build/index.js",
     "test": "jest --silent"

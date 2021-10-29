@@ -1,8 +1,7 @@
 import express, { Request, Response } from "express"
-
 import { info, start, move, end, replayGameState } from "./routes";
-
 import { trace, logLevel as log } from "./logger";
+import { packageGitSha1 } from "./PackageInfo";
 
 const app = express()
 app.use(express.json())
@@ -11,6 +10,10 @@ const port = process.env.PORT || 8080
 
 app.get("/", (req: Request, res: Response) => {
     res.send(info())
+});
+
+app.get("/version", (req: Request, res: Response) => {
+  res.send({ version: packageGitSha1 });
 });
 
 app.post("/start", (req: Request, res: Response) => {
