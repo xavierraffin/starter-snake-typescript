@@ -29,8 +29,10 @@ export function info(): InfoResponse {
       break;
     default:
       response = arloAndKim2;
-      break;
   }
+  console.log(
+    `Snake env = ${process.env.SNAKE_INTERNAL_NAME} ${process.env.LOG_LEVEL} ${process.env.PORT}`
+  );
   return response;
 }
 
