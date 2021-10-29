@@ -5,27 +5,32 @@ import {
 } from "./types";
 
 import { findNextMove, returnBestMovesList } from "./SingleMoveEvaluator";
-
 import { evaluateFutureGameStates } from "./FutureExplorer";
-
 import { trace, logLevel as log } from "./logger";
-
 import { MAX_EVALUATION_DEPTH } from "./constants";
-
-
 import { frameTranslator } from "./FrameTranslator";
+import { killerSharkInfo, killerWhaleInfo, arloAndKim1, arloAndKim2 } from "./colors";
 
 import axios from "axios";
 
 export function info(): InfoResponse {
   trace(log.INFO, "INFO");
-  const response: InfoResponse = {
-    apiversion: "1",
-    author: "xavierraffin",
-    color: "#4ACB7C",
-    head: "pixel",
-    tail: "pixel",
-  };
+
+  let response: InfoResponse;
+  switch (process.env.SNAKE_INTERNAL_NAME) {
+    case "killer-whale":
+      response = killerWhaleInfo;
+      break;
+    case "killer-shark":
+      response = killerSharkInfo;
+      break;
+    case "arlo-and-kim-1":
+      response = arloAndKim1;
+      break;
+    default:
+      response = arloAndKim2;
+      break;
+  }
   return response;
 }
 
