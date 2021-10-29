@@ -1,6 +1,6 @@
 {
-    "serviceName": "arlo-and-kim-2",
-    "taskDefinition": "arlo-and-kim-2:1",
+    "serviceName": "arlo-and-kim-1",
+    "taskDefinition": "arlo-and-kim-1:1",
     "cluster": "Battlesnake",
     "desiredCount": 1,
     "launchType": "EC2",
