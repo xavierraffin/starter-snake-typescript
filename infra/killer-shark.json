@@ -1,0 +1,32 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "killer-shark",
+            "image": "141483740788.dkr.ecr.us-west-2.amazonaws.com/killer-shark:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 8081,
+                    "protocol": "tcp",
+                    "containerPort": 8081
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "killer-shark",
+                    "awslogs-region": "us-west-2",
+                    "awslogs-stream-prefix": "workers"
+                }
+            },
+            "memory": 114,
+            "cpu": 512
+        }
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "networkMode": "host",
+    "family": "killer-shark",
+    "taskRoleArn": "arn:aws:iam::141483740788:role/BattlesnakeRole"
+}

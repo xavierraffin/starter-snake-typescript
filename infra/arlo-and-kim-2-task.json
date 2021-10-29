@@ -1,0 +1,32 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "arlo-and-kim-2",
+            "image": "141483740788.dkr.ecr.us-west-2.amazonaws.com/arlo-and-kim-2:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 8083,
+                    "protocol": "tcp",
+                    "containerPort": 8083
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "arlo-and-kim-2",
+                    "awslogs-region": "us-west-2",
+                    "awslogs-stream-prefix": "workers"
+                }
+            },
+            "memory": 114,
+            "cpu": 512
+        }
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "networkMode": "host",
+    "family": "arlo-and-kim-2",
+    "taskRoleArn": "arn:aws:iam::141483740788:role/BattlesnakeRole"
+}
