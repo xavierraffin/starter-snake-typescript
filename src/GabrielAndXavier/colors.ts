@@ -3,11 +3,11 @@ import { InfoResponse } from "../types";
 // See options here: https://play.battlesnake.com/references/customizations/
 
 export const killerWhaleInfo: InfoResponse = {
-    apiversion: "1",
-    author: "xavierraffin",
-    color: "#4ACB7C",
-    head: "pixel",
-    tail: "pixel",
+  apiversion: "1",
+  author: "xavierraffin",
+  color: "#000000",
+  head: "orca",
+  tail: "shiny",
 };
 
 export const killerSharkInfo: InfoResponse = {
