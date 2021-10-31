@@ -71,6 +71,7 @@ export function boardAfterEnemiesMove(
     }
   }
 
+  
   for(let i=0; i < referenceBoard.snakes.length; i++){
     snakeHeadInPosition(referenceBoard.snakes[i].body[0], referenceBoard);
   }
