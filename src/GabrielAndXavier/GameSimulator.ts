@@ -1,44 +1,55 @@
-import { Direction, GameState } from "../types";
+import { Direction, Board, Battlesnake, MoveInfo, BoardStatus } from "../types";
 
 import { foodInPosition, hasardInPosition } from "./utils";
 
-export function gameStateAfterThisMove(
+export function boardAfterThisMove(
   direction: Direction,
-  gameState: GameState
-): { gamestate?: GameState; snakeDied: boolean } {
-  // TODO make object copy faster
-  let newState = JSON.parse(JSON.stringify(gameState));
+  board: Board,
+  snakeIndex: number
+): { snakeDied: boolean } {
+  const snake: Battlesnake = board.snakes[snakeIndex];
   switch (direction) {
     case Direction.UP:
-      newState.you.head.y++;
+      snake.head.y++;
       break;
     case Direction.DOWN:
-      newState.you.head.y--;
+      snake.head.y--;
       break;
     case Direction.RIGHT:
-      newState.you.head.x++;
+      snake.head.x++;
       break;
     case Direction.LEFT:
-      newState.you.head.x--;
+      snake.head.x--;
   }
-  if (foodInPosition(newState.you.head, gameState)) {
+  if (foodInPosition(snake.head, board)) {
     // Restore health and make longer if food
-    newState.you.health = 100;
+    snake.health = 100;
   } else {
-    if (hasardInPosition(newState.you.head, gameState)) {
-      newState.you.health = newState.you.health - 16;
+    if (hasardInPosition(snake.head, board)) {
+      snake.health = snake.health - 16;
     } else {
-      newState.you.health--;
+      snake.health--;
     }
     // Retract tail
-    newState.you.body.pop();
-    if (newState.you.health === 0) {
+    snake.body.pop();
+    if (snake.health === 0) {
       // Starvation
       return { snakeDied: true };
     }
   }
-  newState.you.body.unshift(newState.you.head);
-  newState.board.snakes[0] = newState.you;
+  snake.body.unshift(snake.head);
 
-  return { gamestate: newState, snakeDied: false };
+  return { snakeDied: false };
+}
+
+export function boardAfterEnemiesMove(
+  currentMoves: MoveInfo[],
+  referenceBoard: Board
+): BoardStatus {
+  return {
+    snakeDeads: 0,
+    playerWin: false,
+    snakesTotalHealth: 0,
+    board: referenceBoard,
+  };
 }

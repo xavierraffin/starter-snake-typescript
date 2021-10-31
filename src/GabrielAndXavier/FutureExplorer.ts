@@ -1,136 +1,186 @@
-import {
-  GameState,
-  Direction,
-} from "../types";
+import { Board, Direction, BoardStatus } from "../types";
 
-import { DEATH_SCORE, MAX_EVALUATION_DEPTH } from "./constants";
-import { scoreGameState } from "./GameScoreEvaluator";
-import { gameStateAfterThisMove } from "./GameSimulator";
+import { DEATH_SCORE, MAX_COMPUTING_TIME_MS } from "./constants";
+import { scoreBoardState } from "./GameScoreEvaluator";
+import { boardAfterThisMove } from "./GameSimulator";
 import { returnBestMovesList, findNextMove } from "./SingleMoveEvaluator";
 import { trace, logLevel as log } from "../logger";
+import { possibleEnemiesMoves } from "./EnemyMoveEvaluator";
 
 const fileLogLevel = log.INFO;
 
-export function evaluateFutureGameState(
-  directionHistory: string[],
-  direction: Direction,
-  gameState: GameState,
-  remainingMaxEvaluations: number
-): { futureState: GameState; stateScore: number } {
-  const indent = MAX_EVALUATION_DEPTH - remainingMaxEvaluations;
-  trace(
-    fileLogLevel,
-    `evaluateFuture direction = ${JSON.stringify(
-      direction
-    )}, history = ${JSON.stringify(directionHistory)}`,
-    indent
-  );
-  const response = gameStateAfterThisMove(direction, gameState);
-  // TODO: here
-  // Move all snakes in every direction except backward (and body direct colision + wall colision?)
-  // Then add a recursion level
-  const futureState = response.gamestate!;
-  if (response.snakeDied) {
-    return {
-      futureState: futureState,
-      stateScore: DEATH_SCORE,
-    };
-  }
+enum AccumulatorLeaveType {
+  ENEMY,
+  PLAYER,
+}
 
-  if (remainingMaxEvaluations == 0) {
-    const score = scoreGameState(futureState);
-    trace(fileLogLevel, `gamescore = ${score}`, indent);
-    return {
-      futureState: futureState,
-      stateScore: score,
-    };
-  } else {
-    const { safe, risky } = findNextMove(futureState);
-    const takeNorisk = true;
-    const bestMoves = returnBestMovesList(safe, risky, takeNorisk);
-
-    trace(
-      fileLogLevel,
-      `On this state, safe = ${JSON.stringify(safe)}, risky = ${JSON.stringify(
-        risky
-      )}}`,
-      indent
-    );
-
-    if (safe.length === 0) {
-      trace(
-        fileLogLevel,
-        `number of safe moves is 0, DEATH gamescore = ${DEATH_SCORE}`,
-        indent
-      );
-      return {
-        futureState: futureState,
-        stateScore: DEATH_SCORE,
-      };
-    }
-    const futureStates = evaluateFutureGameStates(
-      directionHistory,
-      bestMoves,
-      futureState,
-      remainingMaxEvaluations - 1
-    );
-    // If a future is a sure death we remove it from exploration
-    const nonFatalFutures = Object.keys(futureStates).filter(
-      (key) => futureStates[key].stateScore !== DEATH_SCORE
-    );
-    const numberOfViableFuture = Object.keys(nonFatalFutures).length;
-    if (numberOfViableFuture === 0) {
-      trace(
-        fileLogLevel,
-        `number of nonFatalFutures is 0, DEATH??? gamescore = ${DEATH_SCORE}`,
-        indent
-      );
-      return {
-        futureState: futureState,
-        stateScore: DEATH_SCORE,
-      };
-    }
-    const totalScore = nonFatalFutures
-      .map((key) => futureStates[key].stateScore)
-      .reduce((accumulator, currentValue) => accumulator + currentValue);
-    trace(
-      fileLogLevel,
-      `number of futures = ${numberOfViableFuture}, gamescore = ${totalScore}`,
-      indent
-    );
-    return {
-      futureState: futureState,
-      stateScore: totalScore,
-    };
+abstract class AccumulatorLeave {
+  board: Board;
+  childs: AccumulatorLeave[];
+  type: AccumulatorLeaveType;
+  constructor(board: Board, type: AccumulatorLeaveType) {
+    // TODO make object copy faster
+    this.board = JSON.parse(JSON.stringify(board));
+    this.childs = new Array();
+    this.type = type;
   }
 }
 
-export function evaluateFutureGameStates(
-  directionHistory: string[],
-  directions: string[],
-  gameState: GameState,
-  remainingMaxEvaluations: number
-): { [direction: string]: { futureState: GameState; stateScore: number } } {
-  const indent = MAX_EVALUATION_DEPTH - remainingMaxEvaluations;
-  trace(
-    fileLogLevel,
-    `evaluateFutureGameStates : depth = ${remainingMaxEvaluations}, directions = ${JSON.stringify(
-      directions
-    )} - history = ${JSON.stringify(directionHistory)}`,
-    indent
-  );
-  const states: {
-    [direction: string]: { futureState: GameState; stateScore: number };
-  } = {};
-  for (let i = 0; i < directions.length; i++) {
-    const newHistory = directionHistory.slice();
-    newHistory.push(directions[i]);
-    states[directions[i]] = evaluateFutureGameState(
-      newHistory,
-      directions[i] as Direction,
-      gameState,
-      remainingMaxEvaluations
-    );
+class EnemyLeave extends AccumulatorLeave {
+  public depth: number;
+  public directionHistory: Direction[];
+  private direction: Direction;
+  public score: number;
+  constructor(pastDirections: Direction[], direction: Direction, board: Board) {
+    super(board, AccumulatorLeaveType.ENEMY);
+    this.directionHistory = pastDirections.slice();
+    this.directionHistory.push(direction);
+    this.direction = direction;
+    this.depth = this.directionHistory.length;
+    this.score = 0;
   }
-  return states;
+  public reduceScore(): number {
+    this.childs.forEach((child) => {
+      // If a child has no child that means there is no safe move for the player
+      child.childs.forEach((grandChild) => {
+        this.score += (grandChild as EnemyLeave).reduceScore();
+      });
+    });
+    return this.score;
+  }
+  public evaluateScoreAndReturnPossibleNextBoards(myIndex: number): {
+    possibleNextBoards: BoardStatus[];
+    sureWin: boolean;
+  } {
+    // Player move without knowing the other moves so it has to happen first
+    const playerMoveResolution = boardAfterThisMove(
+      this.direction,
+      this.board,
+      myIndex
+    );
+    if (playerMoveResolution.snakeDied) {
+      // Death by starvation, no need to calculate snakes moves
+      this.score = DEATH_SCORE;
+      return { possibleNextBoards: [], sureWin: false };
+    }
+    const { winNumbers, snakeKillOppty, sureWin, boardStatus } =
+      possibleEnemiesMoves(this.board, myIndex);
+    if (sureWin) {
+      trace(
+        log.WARN,
+        `We have a sure win!!! Stop everything and do ${JSON.stringify(
+          this.directionHistory
+        )}`
+      );
+      return { possibleNextBoards: [], sureWin: true };
+    }
+    this.score = scoreBoardState(
+      this.board,
+      myIndex,
+      winNumbers,
+      snakeKillOppty,
+      boardStatus.length
+    );
+    return { possibleNextBoards: boardStatus, sureWin: false };
+  }
+}
+class PlayerLeave extends AccumulatorLeave {
+  public parent: EnemyLeave;
+  constructor(board: Board, parent: EnemyLeave) {
+    super(board, AccumulatorLeaveType.PLAYER);
+    this.parent = parent;
+  }
+  public possibleNextDirections(
+    myIndex: number
+  ): Direction[] {
+    const { safe, risky } = findNextMove(this.board, myIndex);
+    const takeNorisk = true;
+    return returnBestMovesList(safe, risky, takeNorisk);
+  }
+}
+
+export function evaluateDirections(
+  directions: Direction[],
+  board: Board,
+  startTime: number,
+  myIndex: number
+): { [direction: string]: { score: number } } {
+  let currentDepth = 0;
+  const accumulator: AccumulatorLeave[] = [];
+
+  const root: {
+    [direction: string]: { leave: EnemyLeave; score: number };
+  } = {};
+
+  directions.forEach((element) => {
+    const firstLeave = new EnemyLeave([], element, board);
+    accumulator.push(firstLeave);
+    root[element] = {
+      leave: firstLeave,
+      score: 0
+    };
+  });
+
+  // Exploration phase
+  while (accumulator.length > 0) {
+    const leave: AccumulatorLeave = accumulator.shift()!;
+    if (leave.type == AccumulatorLeaveType.PLAYER) {
+      const playerLeave: PlayerLeave = leave as PlayerLeave;
+      const parentLeave: EnemyLeave = playerLeave.parent;
+      if (parentLeave.depth > currentDepth) {
+        let timeSpent = new Date().getTime() - startTime;
+        if (timeSpent >= MAX_COMPUTING_TIME_MS) {
+          trace(
+            log.WARN,
+            `We reached max depth of ${parentLeave.depth}, time spent = ${timeSpent}ms, stopping evaluation`
+          );
+          break; // quit the while loop
+        } else {
+          currentDepth = parentLeave.depth;
+          trace(
+            log.DEBUG,
+            `We are reaching a new depth ${currentDepth}, but we have time to explore more [${timeSpent}ms]`
+          );
+        }
+      }
+      const possibleNextDirections: Direction[] = playerLeave.possibleNextDirections(myIndex);
+      possibleNextDirections.forEach((direction) => {
+        const newEnemyLeave = new EnemyLeave(
+          parentLeave.directionHistory,
+          direction,
+          playerLeave.board
+        );
+        accumulator.push(newEnemyLeave);
+        playerLeave.childs.push(newEnemyLeave);
+      });
+    } else {
+      // AccumulatorLeaveType.ENEMY
+      const enemyLeave: EnemyLeave = leave as EnemyLeave;
+      const { possibleNextBoards, sureWin } = enemyLeave.evaluateScoreAndReturnPossibleNextBoards(
+        myIndex
+      );
+      if (sureWin) {
+        // This is a sure win, we stop any calculation and return only one direction, the one at the origin of the win
+        const bestDirection: { [direction: string]: { score: number } } = {};
+        bestDirection[enemyLeave.directionHistory[0]] = {
+          score: 100,
+        };
+        return bestDirection;
+      }
+      possibleNextBoards.forEach((boardStatus) => {
+        const newPlayerLeave = new PlayerLeave(boardStatus.board, enemyLeave);
+        accumulator.push(newPlayerLeave);
+        enemyLeave.childs.push(newPlayerLeave);
+      });
+    }
+  }
+
+  // Reduction phase
+  Object.keys(root).map((key) => {
+    root[key].leave.childs.forEach((grandChild) => {
+      root[key].score += (grandChild as PlayerLeave).reduceScore();
+    });
+  });
+
+  return root as { [direction: string]: { score: number } };
 }

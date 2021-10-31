@@ -1,5 +1,16 @@
 // See https://docs.battlesnake.com/references/api for all details and examples.
 
+export interface MoveInfo {
+  snakeIndex: number;
+  direction: Direction;
+}
+export interface BoardStatus {
+  snakeDeads: number;
+  playerWin: boolean;
+  snakesTotalHealth: number;
+  board: Board;
+}
+
 export enum Direction {
   UP = "up",
   DOWN = "down",

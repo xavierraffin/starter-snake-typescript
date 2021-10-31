@@ -6,6 +6,7 @@ import {
   Direction,
   DirectionScores,
   GameState,
+  Board
 } from "../types";
 
 export class ScoredDirection {
@@ -117,6 +118,15 @@ export function possibleHeadCollision(
   return false;
 }
 
+export function findMyIndex(gameState: GameState): number {
+  for (let i = 0; i < gameState.board.snakes.length; i++) {
+    if (gameState.board.snakes[i].id === gameState.you.id) {
+      return i;
+    }
+  }
+  return 0;
+}
+
 // Todo is potential colision is last valid move let's allow
 export function headColisionDetection(
   enemyHead: Coord,
@@ -142,11 +152,11 @@ export function headColisionDetection(
   }
 }
 
-export function foodInPosition(position: Coord, gameState: GameState): boolean {
-  for (let i = 0; i < gameState.board.food.length; i++) {
+export function foodInPosition(position: Coord, board: Board): boolean {
+  for (let i = 0; i < board.food.length; i++) {
     if (
-      gameState.board.food[i].x == position.x &&
-      gameState.board.food[i].y == position.y
+      board.food[i].x == position.x &&
+      board.food[i].y == position.y
     ) {
       return true;
     }
@@ -154,11 +164,11 @@ export function foodInPosition(position: Coord, gameState: GameState): boolean {
   return false;
 }
 
-export function hasardInPosition(position: Coord, gameState: GameState): boolean {
-  for (let i = 0; i < gameState.board.hazards.length; i++) {
+export function hasardInPosition(position: Coord, board: Board): boolean {
+  for (let i = 0; i < board.hazards.length; i++) {
     if (
-      gameState.board.hazards[i].x == position.x &&
-      gameState.board.hazards[i].y == position.y
+      board.hazards[i].x == position.x &&
+      board.hazards[i].y == position.y
     ) {
       return true;
     }
