@@ -3,6 +3,7 @@ import { Board, Direction, MoveInfo, BoardStatus } from "../types";
 
 import { findNextMove } from "./SingleMoveEvaluator";
 import { boardAfterEnemiesMove } from "./GameSimulator";
+import { trace, logLevel as log } from "../logger";
 
 class SnakeMove implements MoveInfo {
   public snakeIndex: number;
@@ -52,13 +53,11 @@ export function possibleEnemiesMoves(
   boardStatus: BoardStatus[];
 } {
   const snakes = board.snakes;
-  let snakeSureKills = 0;
-  let numberOfEnemyAlive = snakes.length - 1;
-  const nonWinOrLoseBoards: Board[] = new Array();
   const root: SnakeMove = new SnakeMove({
     snakeIndex: myIndex,
     direction: Direction.UP, // the root tree direction is never read and therefore arbitrary
   });
+  trace(log.DEBUG, `Start enemy moves board = ${JSON.stringify(board)}`);
   for (let i = 0; i < snakes.length; i++) {
     if (i === myIndex) {
       continue;
@@ -76,6 +75,8 @@ export function possibleEnemiesMoves(
   const newBoards: BoardStatus[] = new Array();
   root.findAllFinalMoves([], board, newBoards);
 
+  trace(log.DEBUG, `I found ${newBoards.length} possible states`);
+
   let sureKill = true;
   let winNumber = 0;
   let snakeKillOppty = 0;
@@ -90,10 +91,15 @@ export function possibleEnemiesMoves(
     }
   });
 
+  trace(
+    log.DEBUG,
+    `Result of possibleEnemiesMoves win=${winNumber}, sureWin=${sureKill}, snakeKillOppty=${snakeKillOppty}`
+  );
+
   return {
-    winNumbers: 0,
-    sureWin: false,
-    snakeKillOppty: snakeSureKills,
+    winNumbers: winNumber,
+    sureWin: sureKill,
+    snakeKillOppty: snakeKillOppty,
     boardStatus: newBoards,
   };
 }

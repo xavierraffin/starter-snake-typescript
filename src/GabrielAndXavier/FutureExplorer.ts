@@ -108,6 +108,11 @@ export function evaluateDirections(
   let currentDepth = 0;
   const accumulator: AccumulatorLeave[] = [];
 
+  trace(
+    log.DEBUG,
+    `Begin evaluateDirections with directions ${directions}`
+  );
+
   const root: {
     [direction: string]: { leave: EnemyLeave; score: number };
   } = {};
@@ -144,6 +149,10 @@ export function evaluateDirections(
         }
       }
       const possibleNextDirections: Direction[] = playerLeave.possibleNextDirections(myIndex);
+      trace(
+        log.DEBUG,
+        `PlayerLeave: possibleNextDirections ${possibleNextDirections}`
+      );
       possibleNextDirections.forEach((direction) => {
         const newEnemyLeave = new EnemyLeave(
           parentLeave.directionHistory,
@@ -159,12 +168,20 @@ export function evaluateDirections(
       const { possibleNextBoards, sureWin } = enemyLeave.evaluateScoreAndReturnPossibleNextBoards(
         myIndex
       );
+      trace(
+        log.DEBUG,
+        `EnemyLeave: number of boards=${possibleNextBoards.length}`
+      );
       if (sureWin) {
         // This is a sure win, we stop any calculation and return only one direction, the one at the origin of the win
         const bestDirection: { [direction: string]: { score: number } } = {};
         bestDirection[enemyLeave.directionHistory[0]] = {
           score: 100,
         };
+        trace(
+          log.WARN,
+          `There is a sure win on ${enemyLeave.directionHistory} we return immediatly the direction ${enemyLeave.directionHistory[0]}`
+        );
         return bestDirection;
       }
       possibleNextBoards.forEach((boardStatus) => {

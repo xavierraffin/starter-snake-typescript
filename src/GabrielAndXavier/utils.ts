@@ -175,3 +175,53 @@ export function hasardInPosition(position: Coord, board: Board): boolean {
   }
   return false;
 }
+
+export function snakeBodyInPosition(position: Coord, board: Board): boolean {
+  for (let i = 0; i < board.snakes.length; i++) {
+    for (let j = 1; j < board.snakes[i].body.length; j++) {
+      if (board.snakes[i].body[j].x == position.x && board.snakes[i].body[j].y == position.y) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function snakeHeadInPosition(position: Coord, board: Board, snakeIndex: number): { isColision: boolean, dyingSnakeIndexes: number[] } {
+  let snakeAtPosition: number[] = [snakeIndex];
+  let isColision = false;
+  let longestSnakeAtPosition: { idx: number, length: number } = { idx: snakeIndex, length: board.snakes[snakeIndex].body.length};
+  for (let i = 0; i < board.snakes.length; i++) {
+      if (
+        i !== snakeIndex &&
+        board.snakes[i].body[0].x == position.x &&
+        board.snakes[i].body[0].y == position.y
+      ) {
+        if(board.snakes[i].body.length > longestSnakeAtPosition.length) {
+          longestSnakeAtPosition = { idx: i, length: board.snakes[i].body.length};
+        }
+        snakeAtPosition.push(i);
+        isColision = true;
+      }
+  }
+
+  let dyingSnakeIndexes: number[] = new Array();
+  if(isColision){
+    let numberOfSnakeAtMaxLength = 0;
+    for (let i = 0; i < snakeAtPosition.length; i++) {
+      if (
+        board.snakes[snakeAtPosition[i]].body.length < longestSnakeAtPosition.length
+      ) {
+        dyingSnakeIndexes.push(i);
+      } else {
+        numberOfSnakeAtMaxLength++;
+      }
+    }
+    if(numberOfSnakeAtMaxLength > 1){
+      // Several snake have max length so everybody dies
+      dyingSnakeIndexes = snakeAtPosition;
+    }
+  }
+
+  return { isColision: isColision, dyingSnakeIndexes };
+}
