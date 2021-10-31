@@ -32,7 +32,7 @@ export function gameStateAfterThisMove(
     }
     // Retract tail
     newState.you.body.pop();
-    if (newState.you.health === 0) {
+    if (newState.you.health < 0) {
       // Starvation
       return { snakeDied: true };
     }
