@@ -54,19 +54,19 @@ export function avoidSnakeBody(
   for (let i = 0; i < body.length - 1; i++) {
     if (body[i].x === myHead.x) {
       if (body[i].y === myHead.y + 1) {
-        // trace("There is a body on the up");
+        // trace(log.DEBUG, `There is a body on the up ${i}`);
         possibleMoves.up = false;
       } else if (body[i].y === myHead.y - 1) {
-        // trace("There is a body on the down");
+        // trace(log.DEBUG, `There is a body on the down ${i}`);
         possibleMoves.down = false;
       }
     }
     if (body[i].y === myHead.y) {
       if (body[i].x === myHead.x + 1) {
-        // trace("There is a body on the right");
+        // trace(log.DEBUG, `There is a body on the right ${i}`);
         possibleMoves.right = false;
       } else if (body[i].x === myHead.x - 1) {
-        // trace("There is a body on the left");
+        // trace(log.DEBUG, `There is a body on the left ${i}`);
         possibleMoves.left = false;
       }
     }

@@ -1,4 +1,5 @@
 
+import { trace, logLevel as log } from "../logger";
 import {
   Board,
   DirectionFlags,
@@ -24,7 +25,7 @@ export function findNextMove(board: Board, snakeIndex: number): {
   };
 
   const snake: Battlesnake = board.snakes[snakeIndex];
-  const head = snake.head;
+  const head = snake.body[0];
 
   // Don't hit walls.
   if (head.x == board.width - 1) {
@@ -46,7 +47,7 @@ export function findNextMove(board: Board, snakeIndex: number): {
     avoidSnakeBody(board.snakes[i].body, head, possibleMoves);
     if (i !== snakeIndex) {
       headColisionDetection(
-        board.snakes[i].head,
+        board.snakes[i].body[0],
         board.snakes[i].length,
         head,
         board.snakes[snakeIndex].length,
@@ -54,9 +55,9 @@ export function findNextMove(board: Board, snakeIndex: number): {
         riskyMoves
       );
     }
-    
   }
 
+  trace(log.DEBUG, `||| 3 possibleMoves = ${JSON.stringify(possibleMoves)}`);
   // Finally, choose a move from the available safe moves.
   const safeMoves: Direction[] = Object.keys(possibleMoves).filter(
     (key) => possibleMoves[key as Direction]

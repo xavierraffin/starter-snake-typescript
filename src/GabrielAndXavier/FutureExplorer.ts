@@ -19,8 +19,7 @@ abstract class AccumulatorLeave {
   childs: AccumulatorLeave[];
   type: AccumulatorLeaveType;
   constructor(board: Board, type: AccumulatorLeaveType) {
-    // TODO make object copy faster
-    this.board = JSON.parse(JSON.stringify(board));
+    this.board = board;
     this.childs = new Array();
     this.type = type;
   }
@@ -35,7 +34,7 @@ class EnemyLeave extends AccumulatorLeave {
   private snakeKillOppty?: number;
   private nbBoards?: number;
   constructor(pastDirections: Direction[], direction: Direction, board: Board) {
-    super(board, AccumulatorLeaveType.ENEMY);
+    super(JSON.parse(JSON.stringify(board)), AccumulatorLeaveType.ENEMY);
     this.directionHistory = pastDirections.slice();
     this.directionHistory.push(direction);
     this.direction = direction;
@@ -127,11 +126,30 @@ class PlayerLeave extends AccumulatorLeave {
     trace(log.DEBUG, `Create PlayerLeave from ${this.parent.directionHistory}`, this.parent.depth);
   }
   public possibleNextDirections(myIndex: number): Direction[] {
+    trace(
+      log.DEBUG,
+      `>>> After ${this.parent.directionHistory}, board=${JSON.stringify(
+        this.board
+      )}`,
+      this.parent.depth
+    );
     const { safe, risky } = findNextMove(this.board, myIndex);
+    trace(log.DEBUG, `>>>>> safe = ${safe}`, this.parent.depth);
     const takeNorisk = true;
-    return returnBestMovesList(safe, risky, takeNorisk);
+    const direct = returnBestMovesList(safe, risky, takeNorisk);
+    trace(
+      log.DEBUG,
+      `>>>>> Best move ${direct}`,
+      this.parent.depth
+    );
+    return direct;
   }
   public reduceScoreToMaxOfChilds(maxDepth: number): number {
+      trace(
+        log.INFO,
+        `PlayerLeave Direction ${this.parent.directionHistory} - reduceScoreToMaxOfChilds`,
+        this.parent.depth
+      );
     let maximumScore: number = -1000000;
     if (this.childs.length === 0) {
       maximumScore = DEATH_SCORE;
@@ -146,7 +164,7 @@ class PlayerLeave extends AccumulatorLeave {
   }
 }
 
-const MAX_DEPTH = 1;
+const MAX_DEPTH = 2;
 
 export function evaluateDirections(
   directions: Direction[],
@@ -166,12 +184,13 @@ export function evaluateDirections(
     [direction: string]: { leave: EnemyLeave; score: number };
   } = {};
 
-  directions.forEach((element) => {
-    const firstLeave = new EnemyLeave([], element, board);
+  directions.forEach((direction) => {
+    const boardCopy = JSON.parse(JSON.stringify(board));
+    const firstLeave = new EnemyLeave([], direction, boardCopy);
     accumulator.push(firstLeave);
-    root[element] = {
+    root[direction] = {
       leave: firstLeave,
-      score: 0
+      score: 0,
     };
   });
 
@@ -181,9 +200,12 @@ export function evaluateDirections(
     if (leave.type == AccumulatorLeaveType.PLAYER) {
       const playerLeave: PlayerLeave = leave as PlayerLeave;
       const parentLeave: EnemyLeave = playerLeave.parent;
-      if (parentLeave.depth > currentDepth) {
+      if (parentLeave.depth > currentDepth || parentLeave.depth == MAX_DEPTH) {
         let timeSpent = new Date().getTime() - startTime;
-        if (timeSpent >= MAX_COMPUTING_TIME_MS || currentDepth == MAX_DEPTH) {
+        if (
+          timeSpent >= MAX_COMPUTING_TIME_MS ||
+          parentLeave.depth == MAX_DEPTH
+        ) {
           trace(
             log.WARN,
             `We reached max depth of ${parentLeave.depth}, time spent = ${timeSpent}ms, stopping evaluation`
@@ -240,10 +262,11 @@ export function evaluateDirections(
       });
     }
   }
-
+  
   // Reduction phase
+  trace(log.VERBOSE, ` === Now calculating scores ===`);
   Object.keys(root).map((key) => {
-    root[key].score += root[key].leave.reduceScoreToMinOfChilds(currentDepth);
+    root[key].score += root[key].leave.reduceScoreToMinOfChilds(currentDepth+1);
   });
 
   return root as { [direction: string]: { score: number } };
