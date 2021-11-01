@@ -30,7 +30,6 @@ class EnemyLeave extends AccumulatorLeave {
   public depth: number;
   public directionHistory: Direction[];
   private direction: Direction;
-  public score: number;
   private myIndex?: number;
   private winNumbers?: number;
   private snakeKillOppty?: number;
@@ -41,7 +40,7 @@ class EnemyLeave extends AccumulatorLeave {
     this.directionHistory.push(direction);
     this.direction = direction;
     this.depth = this.directionHistory.length;
-    this.score = 0;
+    trace(log.DEBUG, `Create EnemyLeave ${this.directionHistory}`, this.depth);
   }
   public reduceScoreToMinOfChilds(maxDepth: number): number {
     if (this.depth === maxDepth) {
@@ -91,6 +90,7 @@ class EnemyLeave extends AccumulatorLeave {
     possibleNextBoards: BoardStatus[];
     sureWin: boolean;
   } {
+    trace(log.DEBUG, `Evaluating possible enemy move after ${this.directionHistory}`, this.depth);
     // Player move without knowing the other moves so it has to happen first
     const playerMoveResolution = boardAfterThisMove(
       this.direction,
@@ -99,7 +99,6 @@ class EnemyLeave extends AccumulatorLeave {
     );
     if (playerMoveResolution.snakeStarved) {
       // Death by starvation, no need to calculate snakes moves
-      this.score = DEATH_SCORE;
       return { possibleNextBoards: [], sureWin: false };
     }
     const { winNumbers, snakeKillOppty, sureWin, boardStatus } =
@@ -125,6 +124,7 @@ class PlayerLeave extends AccumulatorLeave {
   constructor(board: Board, parent: EnemyLeave) {
     super(board, AccumulatorLeaveType.PLAYER);
     this.parent = parent;
+    trace(log.DEBUG, `Create PlayerLeave from ${this.parent.directionHistory}`, this.parent.depth);
   }
   public possibleNextDirections(myIndex: number): Direction[] {
     const { safe, risky } = findNextMove(this.board, myIndex);

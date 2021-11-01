@@ -1,4 +1,4 @@
-import { Direction, Board, Battlesnake, MoveInfo, BoardStatus } from "../types";
+import { Direction, Board, Battlesnake, MoveInfo, BoardStatus, Coord } from "../types";
 
 import {
   foodInPosition,
@@ -15,7 +15,7 @@ export function boardAfterThisMove(
 ): { snakeStarved: boolean } {
   trace(log.DEBUG, `Moving snake ${snakeIndex}`);
   const snake: Battlesnake = board.snakes[snakeIndex];
-  const head = snake.body[0];
+  const head: Coord = { x: snake.body[0].x, y: snake.body[0].y };
   switch (direction) {
     case Direction.UP:
       head.y++;
@@ -61,6 +61,8 @@ export function boardAfterEnemiesMove(
 
   trace(log.DEBUG, `Moving enemies`);
 
+  // trace(log.DEBUG, `BEFORE enemy move ${JSON.stringify(referenceBoard.snakes)}`);
+
   // Resolve starvation first: https://discord.com/channels/689979228841836632/692200459473256448/904487062743433247
   currentMoves.forEach((move) => {
     const { snakeStarved } = boardAfterThisMove(
@@ -75,6 +77,7 @@ export function boardAfterEnemiesMove(
       referenceBoard.snakes.splice(move.snakeIndex, 1);
     }
   });
+  // trace(log.DEBUG, `AFTER enemy move ${JSON.stringify(referenceBoard.snakes)}`);
 
   const snakeToKill = new Set();
 
@@ -96,7 +99,7 @@ export function boardAfterEnemiesMove(
   for (let i = 0; i < referenceBoard.snakes.length; i++) {
     if (i === myIndex) continue;
     if (snakeBodyInPosition(referenceBoard.snakes[i].body[0], referenceBoard)) {
-        trace(log.DEBUG, `Snake ${i} collide a snake nody`);
+      trace(log.DEBUG, `Snake ${i} collide a snake body`);
       snakeToKill.add(i);
     }
   }

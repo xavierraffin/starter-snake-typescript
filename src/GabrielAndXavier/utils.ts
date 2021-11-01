@@ -8,7 +8,7 @@ import {
   GameState,
   Board
 } from "../types";
-
+import { trace, logLevel as log } from "../logger";
 export class ScoredDirection {
   directions: DirectionScores = {
     up: 0,
