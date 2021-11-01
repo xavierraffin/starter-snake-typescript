@@ -56,24 +56,46 @@ export function boardAfterEnemiesMove(
 
   // Resolve starvation first: https://discord.com/channels/689979228841836632/692200459473256448/904487062743433247
   currentMoves.forEach((move) => {
-    const { snakeStarved } = boardAfterThisMove(move.direction, referenceBoard, move.snakeIndex);
-    if(snakeStarved) {
+    const { snakeStarved } = boardAfterThisMove(
+      move.direction,
+      referenceBoard,
+      move.snakeIndex
+    );
+    if (snakeStarved) {
       deadSnakes++;
+      trace(log.DEBUG, `Snake ${move.snakeIndex} died of starvation`);
       // Remove snake body from board
       referenceBoard.snakes.splice(move.snakeIndex, 1);
     }
   });
 
-  let snakeToKill: number[] = new Array();
-  for(let i=0; i < referenceBoard.snakes.length; i++){
-    if(snakeBodyInPosition(referenceBoard.snakes[i].body[0], referenceBoard)){
-      snakeToKill.push(i);
+  const snakeToKill = new Set();
+
+  for (let i = 0; i < referenceBoard.snakes.length; i++) {
+    // If the index is already in the kill Set we don't need to calculate colision for this position again
+    if(!snakeToKill.has(i)){
+      const { dyingSnakeIndexes } = snakeHeadInPosition(
+        referenceBoard.snakes[i].body[0],
+        referenceBoard,
+        i
+      );
+      dyingSnakeIndexes.forEach((idx) => {
+        snakeToKill.add(idx);
+      });
+    }
+  }
+  for (let i = 0; i < referenceBoard.snakes.length; i++) {
+    if (snakeBodyInPosition(referenceBoard.snakes[i].body[0], referenceBoard)) {
+      snakeToKill.add(i);
     }
   }
 
-  
-  for(let i=0; i < referenceBoard.snakes.length; i++){
-    snakeHeadInPosition(referenceBoard.snakes[i].body[0], referenceBoard);
+  // Remove all killed snake from the list
+  const sortedKillIdx = Array.from(snakeToKill).sort();
+
+  for (let i = sortedKillIdx.length - 1; i >= 0; i--) {
+    trace(log.DEBUG, `Deleting body of idx ${sortedKillIdx[i]}`);
+    referenceBoard.snakes.splice(sortedKillIdx[i] as number, 1);
   }
 
   return {

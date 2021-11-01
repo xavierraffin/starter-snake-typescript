@@ -31,6 +31,10 @@ class EnemyLeave extends AccumulatorLeave {
   public directionHistory: Direction[];
   private direction: Direction;
   public score: number;
+  private myIndex?: number;
+  private winNumbers?: number;
+  private snakeKillOppty?: number;
+  private nbBoards?: number;
   constructor(pastDirections: Direction[], direction: Direction, board: Board) {
     super(board, AccumulatorLeaveType.ENEMY);
     this.directionHistory = pastDirections.slice();
@@ -39,14 +43,49 @@ class EnemyLeave extends AccumulatorLeave {
     this.depth = this.directionHistory.length;
     this.score = 0;
   }
-  public reduceScore(): number {
+  public reduceScoreToMinOfChilds(maxDepth: number): number {
+    if (this.depth === maxDepth) {
+      const score = scoreBoardState(
+        this.board,
+        this.myIndex!,
+        this.winNumbers!,
+        this.snakeKillOppty!,
+        this.nbBoards!
+      );
+      trace(
+        log.INFO,
+        `Direction ${this.directionHistory} get score ${score}`,
+        this.depth
+      );
+      return score;
+    }
+    trace(
+      log.DEBUG,
+      `Direction ${this.directionHistory} depth=${this.depth}<${maxDepth} getting min of childs`,
+      this.depth
+    );
+    let minimumScore: number = 1000000;
+    if (this.childs.length === 0) {
+      trace(
+        log.WARN,
+        `This move has no child ${
+          this.directionHistory
+        } this may be a dead end board=${JSON.stringify(this.board)}`,
+        this.depth
+      );
+    }
     this.childs.forEach((child) => {
-      // If a child has no child that means there is no safe move for the player
-      child.childs.forEach((grandChild) => {
-        this.score += (grandChild as EnemyLeave).reduceScore();
-      });
+      const score = (child as PlayerLeave).reduceScoreToMaxOfChilds(maxDepth);
+      if (minimumScore === undefined || score < minimumScore) {
+        minimumScore = score;
+      }
     });
-    return this.score;
+    trace(
+      log.DEBUG,
+      `Direction ${this.directionHistory} get score ${minimumScore}`,
+      this.depth
+    );
+    return minimumScore;
   }
   public evaluateScoreAndReturnPossibleNextBoards(myIndex: number): {
     possibleNextBoards: BoardStatus[];
@@ -58,7 +97,7 @@ class EnemyLeave extends AccumulatorLeave {
       this.board,
       myIndex
     );
-    if (playerMoveResolution.snakeDied) {
+    if (playerMoveResolution.snakeStarved) {
       // Death by starvation, no need to calculate snakes moves
       this.score = DEATH_SCORE;
       return { possibleNextBoards: [], sureWin: false };
@@ -74,13 +113,10 @@ class EnemyLeave extends AccumulatorLeave {
       );
       return { possibleNextBoards: [], sureWin: true };
     }
-    this.score = scoreBoardState(
-      this.board,
-      myIndex,
-      winNumbers,
-      snakeKillOppty,
-      boardStatus.length
-    );
+    this.myIndex = myIndex;
+    this.winNumbers = winNumbers;
+    this.snakeKillOppty = snakeKillOppty;
+    this.nbBoards = boardStatus.length;
     return { possibleNextBoards: boardStatus, sureWin: false };
   }
 }
@@ -90,15 +126,25 @@ class PlayerLeave extends AccumulatorLeave {
     super(board, AccumulatorLeaveType.PLAYER);
     this.parent = parent;
   }
-  public possibleNextDirections(
-    myIndex: number
-  ): Direction[] {
+  public possibleNextDirections(myIndex: number): Direction[] {
     const { safe, risky } = findNextMove(this.board, myIndex);
     const takeNorisk = true;
     return returnBestMovesList(safe, risky, takeNorisk);
   }
+  public reduceScoreToMaxOfChilds(maxDepth: number): number {
+    let maximumScore: number = -1000000;
+    if (this.childs.length === 0) {
+      maximumScore = DEATH_SCORE;
+    } else
+      this.childs.forEach((child) => {
+        const score = (child as EnemyLeave).reduceScoreToMinOfChilds(maxDepth);
+        if (maximumScore === undefined || score > maximumScore) {
+          maximumScore = score;
+        }
+      });
+    return maximumScore;
+  }
 }
-
 export function evaluateDirections(
   directions: Direction[],
   board: Board,
@@ -194,9 +240,7 @@ export function evaluateDirections(
 
   // Reduction phase
   Object.keys(root).map((key) => {
-    root[key].leave.childs.forEach((grandChild) => {
-      root[key].score += (grandChild as PlayerLeave).reduceScore();
-    });
+    root[key].score += root[key].leave.reduceScoreToMinOfChilds(currentDepth);
   });
 
   return root as { [direction: string]: { score: number } };
