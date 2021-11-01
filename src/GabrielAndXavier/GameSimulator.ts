@@ -13,25 +13,29 @@ export function boardAfterThisMove(
   board: Board,
   snakeIndex: number
 ): { snakeStarved: boolean } {
+  trace(log.DEBUG, `Moving snake ${snakeIndex}`);
   const snake: Battlesnake = board.snakes[snakeIndex];
+  const head = snake.body[0];
   switch (direction) {
     case Direction.UP:
-      snake.head.y++;
+      head.y++;
       break;
     case Direction.DOWN:
-      snake.head.y--;
+      head.y--;
       break;
     case Direction.RIGHT:
-      snake.head.x++;
+      head.x++;
       break;
     case Direction.LEFT:
-      snake.head.x--;
+      head.x--;
   }
-  if (foodInPosition(snake.head, board)) {
+  const { isFood, foodIndex } = foodInPosition(head, board)
+  if (isFood) {
     // Restore health and make longer if food
     snake.health = 100;
+    board.food.splice(foodIndex!, 1); // Remove food
   } else {
-    if (hasardInPosition(snake.head, board)) {
+    if (hasardInPosition(head, board)) {
       snake.health = snake.health - 16;
     } else {
       snake.health--;
@@ -43,16 +47,19 @@ export function boardAfterThisMove(
       return { snakeStarved: true };
     }
   }
-  snake.body.unshift(snake.head);
+  snake.body.unshift(head);
 
   return { snakeStarved: false };
 }
 
 export function boardAfterEnemiesMove(
   currentMoves: MoveInfo[],
-  referenceBoard: Board
+  referenceBoard: Board,
+  myIndex: number
 ): BoardStatus {
   let deadSnakes = 0;
+
+  trace(log.DEBUG, `Moving enemies`);
 
   // Resolve starvation first: https://discord.com/channels/689979228841836632/692200459473256448/904487062743433247
   currentMoves.forEach((move) => {
@@ -72,20 +79,24 @@ export function boardAfterEnemiesMove(
   const snakeToKill = new Set();
 
   for (let i = 0; i < referenceBoard.snakes.length; i++) {
-    // If the index is already in the kill Set we don't need to calculate colision for this position again
-    if(!snakeToKill.has(i)){
+    if (i === myIndex) continue;
+    if (!snakeToKill.has(i)) {
+      // If the index is already in the kill Set we don't need to calculate colision for this position again
       const { dyingSnakeIndexes } = snakeHeadInPosition(
         referenceBoard.snakes[i].body[0],
         referenceBoard,
         i
       );
       dyingSnakeIndexes.forEach((idx) => {
+        trace(log.DEBUG, `Snake ${idx} collide head to head and died`);
         snakeToKill.add(idx);
       });
     }
   }
   for (let i = 0; i < referenceBoard.snakes.length; i++) {
+    if (i === myIndex) continue;
     if (snakeBodyInPosition(referenceBoard.snakes[i].body[0], referenceBoard)) {
+        trace(log.DEBUG, `Snake ${i} collide a snake nody`);
       snakeToKill.add(i);
     }
   }

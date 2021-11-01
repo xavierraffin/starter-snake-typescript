@@ -152,16 +152,16 @@ export function headColisionDetection(
   }
 }
 
-export function foodInPosition(position: Coord, board: Board): boolean {
+export function foodInPosition(position: Coord, board: Board): { isFood: boolean, foodIndex?: number} {
   for (let i = 0; i < board.food.length; i++) {
     if (
       board.food[i].x == position.x &&
       board.food[i].y == position.y
     ) {
-      return true;
+      return { isFood: true, foodIndex: i};
     }
   }
-  return false;
+  return { isFood: false };
 }
 
 export function hasardInPosition(position: Coord, board: Board): boolean {

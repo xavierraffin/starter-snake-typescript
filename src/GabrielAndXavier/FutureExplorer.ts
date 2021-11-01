@@ -145,6 +145,9 @@ class PlayerLeave extends AccumulatorLeave {
     return maximumScore;
   }
 }
+
+const MAX_DEPTH = 1;
+
 export function evaluateDirections(
   directions: Direction[],
   board: Board,
@@ -180,7 +183,7 @@ export function evaluateDirections(
       const parentLeave: EnemyLeave = playerLeave.parent;
       if (parentLeave.depth > currentDepth) {
         let timeSpent = new Date().getTime() - startTime;
-        if (timeSpent >= MAX_COMPUTING_TIME_MS) {
+        if (timeSpent >= MAX_COMPUTING_TIME_MS || currentDepth == MAX_DEPTH) {
           trace(
             log.WARN,
             `We reached max depth of ${parentLeave.depth}, time spent = ${timeSpent}ms, stopping evaluation`

@@ -81,7 +81,7 @@ export function scoreBoardState(
 
   trace(
     log.DEBUG,
-    `SCORE: ${score} health=${health}, nbSnake=s${numberOfenemies}, winRatio=${winRatio}, lowMovesForOpponents=${lowMovesForOpponents}, numberOfEnemyMoves=${numberOfEnemyMoves}`
+    `SCORE: ${score} health=${health}, nbSnake=${numberOfenemies}, winRatio=${winRatio}, lowMovesForOpponents=${lowMovesForOpponents}, numberOfEnemyMoves=${numberOfEnemyMoves}`
   );
   return score;
 }
