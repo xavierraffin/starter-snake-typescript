@@ -25,7 +25,8 @@ export function findNextMove(board: Board, snakeIndex: number): {
   };
 
   const snake: Battlesnake = board.snakes[snakeIndex];
-  const head = snake.body[0];
+  const selfBody = snake.body;
+  const head = selfBody[0];
 
   // Don't hit walls.
   if (head.x == board.width - 1) {
@@ -44,20 +45,20 @@ export function findNextMove(board: Board, snakeIndex: number): {
   // Don't collide with snakes bodies
   let riskyMoves = new ScoredDirection();
   for (let i = 0; i < board.snakes.length; i++) {
-    avoidSnakeBody(board.snakes[i].body, head, possibleMoves);
+    const snakeBody = board.snakes[i].body;
+    avoidSnakeBody(snakeBody, head, possibleMoves);
     if (i !== snakeIndex) {
       headColisionDetection(
-        board.snakes[i].body[0],
-        board.snakes[i].length,
+        snakeBody[0],
+        snakeBody.length,
         head,
-        board.snakes[snakeIndex].length,
+        selfBody.length,
         possibleMoves,
         riskyMoves
       );
     }
   }
 
-  trace(log.DEBUG, `||| 3 possibleMoves = ${JSON.stringify(possibleMoves)}`);
   // Finally, choose a move from the available safe moves.
   const safeMoves: Direction[] = Object.keys(possibleMoves).filter(
     (key) => possibleMoves[key as Direction]

@@ -126,30 +126,17 @@ class PlayerLeave extends AccumulatorLeave {
     trace(log.DEBUG, `Create PlayerLeave from ${this.parent.directionHistory}`, this.parent.depth);
   }
   public possibleNextDirections(myIndex: number): Direction[] {
-    trace(
-      log.DEBUG,
-      `>>> After ${this.parent.directionHistory}, board=${JSON.stringify(
-        this.board
-      )}`,
-      this.parent.depth
-    );
     const { safe, risky } = findNextMove(this.board, myIndex);
-    trace(log.DEBUG, `>>>>> safe = ${safe}`, this.parent.depth);
     const takeNorisk = true;
     const direct = returnBestMovesList(safe, risky, takeNorisk);
-    trace(
-      log.DEBUG,
-      `>>>>> Best move ${direct}`,
-      this.parent.depth
-    );
     return direct;
   }
   public reduceScoreToMaxOfChilds(maxDepth: number): number {
-      trace(
+    /*  trace(
         log.INFO,
         `PlayerLeave Direction ${this.parent.directionHistory} - reduceScoreToMaxOfChilds`,
         this.parent.depth
-      );
+      );*/
     let maximumScore: number = -1000000;
     if (this.childs.length === 0) {
       maximumScore = DEATH_SCORE;
@@ -164,7 +151,7 @@ class PlayerLeave extends AccumulatorLeave {
   }
 }
 
-const MAX_DEPTH = 2;
+const MAX_DEPTH = 15;
 
 export function evaluateDirections(
   directions: Direction[],
@@ -268,6 +255,9 @@ export function evaluateDirections(
   Object.keys(root).map((key) => {
     root[key].score += root[key].leave.reduceScoreToMinOfChilds(currentDepth+1);
   });
+
+
+  trace(log.WARN, ` Max depth explored = ${currentDepth}`);
 
   return root as { [direction: string]: { score: number } };
 }
