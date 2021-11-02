@@ -23,6 +23,16 @@ export function frameTranslator(frames: any, gameId: string): GameState {
 
   snakes.unshift(you!);
 
+  const food: Coord[] = [];
+  const hazards: Coord[] = [];
+
+  frame.Food.forEach((element: any) => {
+    food.push({x: element.X, y: element.Y});
+  });
+  frame.Hazards.forEach((element: any) => {
+    hazards.push({ x: element.X, y: element.Y });
+  });
+
   const game: GameState = {
     game: {
       id: gameId,
@@ -36,9 +46,9 @@ export function frameTranslator(frames: any, gameId: string): GameState {
     board: {
       height: 11,
       width: 11,
-      food: frame.Food as Coord[],
+      food: food,
       snakes: snakes,
-      hazards: frame.Hazards as Coord[],
+      hazards: hazards,
     },
     you: you!,
   };

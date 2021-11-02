@@ -8,7 +8,7 @@ export function gameStateAfterThisMove(
   gameState: GameState
 ): { gamestate?: GameState; snakeDied: boolean } {
 
-  // trace(log.WARN, `[BEFORE] ${JSON.stringify(gameState)}\n`);
+  trace(log.WARN, `[BEFORE] ${JSON.stringify(gameState)}\n`);
   // TODO make object copy faster
   let newState = JSON.parse(JSON.stringify(gameState));
   switch (direction) {
@@ -33,11 +33,11 @@ export function gameStateAfterThisMove(
     });
     newState.board.snakes[i].body.pop();
   }
-  if (foodInPosition(newState.you.head, gameState)) {
+  if (foodInPosition(newState.you.head, newState)) {
     // Restore health and make longer if food
     newState.you.health = 100;
   } else {
-    if (hasardInPosition(newState.you.head, gameState)) {
+    if (hasardInPosition(newState.you.head, newState)) {
       newState.you.health = newState.you.health - 16;
     } else {
       newState.you.health--;
@@ -51,7 +51,7 @@ export function gameStateAfterThisMove(
   }
   newState.you.body.unshift(newState.you.head);
   newState.board.snakes[0] = newState.you;
-  // trace(log.WARN, `[AFTER] ${JSON.stringify(newState)}\n`);
+  trace(log.WARN, `[AFTER] ${JSON.stringify(newState)}\n`);
 
   return { gamestate: newState, snakeDied: false };
 }
