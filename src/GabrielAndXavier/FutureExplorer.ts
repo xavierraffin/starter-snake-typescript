@@ -90,12 +90,22 @@ export function evaluateFutureGameState(
         stateScore: DEATH_SCORE,
       };
     }
-    const totalScore = nonFatalFutures
+
+    const maximumScore = nonFatalFutures
       .map((key) => futureStates[key].stateScore)
-      .reduce((accumulator, currentValue) => accumulator + currentValue);
+      .reduce((accumulator, currentValue) => 
+        currentValue > accumulator ? currentValue : accumulator
+      );
+
+    /*const totalScore = nonFatalFutures
+      .map((key) => futureStates[key].stateScore)
+      .reduce((accumulator, currentValue) => accumulator + currentValue);*/
+
+    const totalScore = numberOfViableFuture * 2 + maximumScore;
+
     trace(
       fileLogLevel,
-      `number of futures = ${numberOfViableFuture}, gamescore = ${totalScore}`,
+      `number of futures = ${numberOfViableFuture}, totalScore = ${totalScore} maxScore ${maximumScore}`,
       indent
     );
     return {
