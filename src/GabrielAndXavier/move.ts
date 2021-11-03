@@ -9,8 +9,13 @@ import { trace, logLevel as log, setGameId } from "../logger";
 import { DEATH_SCORE, MAX_EVALUATION_DEPTH } from "./constants";
 
 export function move(gameState: GameState): MoveResponse {
-  setGameId(gameState.game.id);
-  trace(log.WARN, `=== start Move === turn ${gameState.turn} ===\n`);
+  setGameId(`${gameState.game.id}-${gameState.turn}`);
+  trace(
+    log.WARN,
+    `=== start Move === turn ${gameState.turn} ===\n`
+  );
+
+  trace(log.WARN, `gameState = ${JSON.stringify(gameState)}\n`);
 
   const { safe, risky } = findNextMove(gameState);
   const bestMoves = returnBestMovesList(safe, risky);
