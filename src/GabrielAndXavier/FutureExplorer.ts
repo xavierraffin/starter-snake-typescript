@@ -112,7 +112,7 @@ export function evaluateFutureGameState(
 
     trace(
       fileLogLevel,
-      `number of futures = ${numberOfViableFuture}, totalScore = ${totalScore} maxScore ${maximumScore}`,
+      `number of futures = ${numberOfViableFuture}, totalScore = ${totalScore} maxScore `,
       indent
     );
     return {
