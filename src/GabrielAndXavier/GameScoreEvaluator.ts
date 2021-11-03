@@ -10,7 +10,7 @@ export function scoreGameState(gameState: GameState): number {
   // self length against enemy length
   // self death
   trace(log.DEBUG,
-    `health=${gameState.you.health}, nbSnake=s${
+    `health=${gameState.you.health}, nbSnake=${
       gameState.board.snakes.length - START_NUMBER_OF_SNAKES
     }`
   );
