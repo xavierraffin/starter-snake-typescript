@@ -6,6 +6,11 @@ export enum logLevel {
   ERROR = 4,
 }
 
+let gameId = "";
+export function setGameId(id: string){
+  gameId = id;
+}
+
 let LOG_LEVEL = logLevel.DEBUG;
 if (process.env.LOG_LEVEL) {
   LOG_LEVEL = parseInt(process.env.LOG_LEVEL) as logLevel;
@@ -21,6 +26,6 @@ export function trace(
     for (let i = 0; i < indentCharsNb; i++) {
       indent += " ";
     }
-    console.log(`[${logLevel[level]}] ${indent}${msg}`);
+    console.log(`[${logLevel[level]}] ${gameId} ${indent}${msg}`);
   }
 }

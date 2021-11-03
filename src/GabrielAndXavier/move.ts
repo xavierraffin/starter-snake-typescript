@@ -5,10 +5,11 @@ import {
   returnBestMovesList,
 } from "./SingleMoveEvaluator";
 import { evaluateFutureGameStates } from "./FutureExplorer";
-import { trace, logLevel as log } from "../logger";
+import { trace, logLevel as log, setGameId } from "../logger";
 import { MAX_EVALUATION_DEPTH } from "./constants";
 
 export function move(gameState: GameState): MoveResponse {
+  setGameId(gameState.game.id);
   trace(log.WARN, `=== start Move === turn ${gameState.turn} ===\n`);
 
   const { safe, risky } = findNextMove(gameState);
