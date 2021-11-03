@@ -100,8 +100,11 @@ export function evaluateFutureGameState(
     /*const totalScore = nonFatalFutures
       .map((key) => futureStates[key].stateScore)
       .reduce((accumulator, currentValue) => accumulator + currentValue);*/
-    const score = scoreGameState(futureState);
-    const totalScore = (numberOfViableFuture * 2 + maximumScore) + (score * (1 + MAX_EVALUATION_DEPTH - remainingMaxEvaluations) / 8);
+    let totalScore = numberOfViableFuture * 2 + maximumScore;
+    if (futureState.you.health < 20){
+      const score = scoreGameState(futureState);
+      totalScore += (score * (1 + MAX_EVALUATION_DEPTH - remainingMaxEvaluations) / 8);
+    }
 
     trace(
       fileLogLevel,
