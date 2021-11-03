@@ -46,7 +46,7 @@ export function move(gameState: GameState): MoveResponse {
 
    let directionSelection = bestDirections;
 
-  if (maximum === undefined || maximum <= DEATH_SCORE) {
+  if (maximum === undefined || maximum <= DEATH_SCORE + 500) {
     trace(
       log.WARN,
       `We are going to a certain death in ${directionSelection}`
