@@ -6,7 +6,7 @@ import {
 } from "./SingleMoveEvaluator";
 import { evaluateFutureGameStates } from "./FutureExplorer";
 import { trace, logLevel as log, setGameId } from "../logger";
-import { MAX_EVALUATION_DEPTH } from "./constants";
+import { DEATH_SCORE, MAX_EVALUATION_DEPTH } from "./constants";
 
 export function move(gameState: GameState): MoveResponse {
   setGameId(gameState.game.id);
@@ -14,6 +14,8 @@ export function move(gameState: GameState): MoveResponse {
 
   const { safe, risky } = findNextMove(gameState);
   const bestMoves = returnBestMovesList(safe, risky);
+
+  trace(log.DEBUG, `safe ${safe} - risky ${JSON.stringify(risky)}\n`);
 
   const futureStates = evaluateFutureGameStates(
     new Array(),
@@ -37,9 +39,27 @@ export function move(gameState: GameState): MoveResponse {
 
   trace(log.INFO, `Overall bestDirections = ${JSON.stringify(bestDirections)}`);
 
-  const response: MoveResponse = {
-    move: bestDirections[Math.floor(Math.random() * bestDirections.length)],
-  };
+   let directionSelection = bestDirections;
+
+  if (maximum === undefined || maximum <= DEATH_SCORE) {
+    trace(
+      log.WARN,
+      `We are going to a certain death in ${directionSelection}`
+    );
+    const moveMaybeRIskyButNotDeadly = safe.filter(
+      (value) => !bestDirections.includes(value)
+    );
+    if (moveMaybeRIskyButNotDeadly.length>0) {
+      directionSelection = moveMaybeRIskyButNotDeadly;
+      trace(
+        log.WARN,
+        `Let's try a riskier option in ${directionSelection} instead`
+      );
+    }
+  }
+    const response: MoveResponse = {
+      move: directionSelection[Math.floor(Math.random() * directionSelection.length)],
+    };
 
   trace(
     log.WARN,
