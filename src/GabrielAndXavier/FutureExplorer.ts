@@ -91,20 +91,24 @@ export function evaluateFutureGameState(
       };
     }
 
+    // Original strategy
+    const totalScore = nonFatalFutures
+      .map((key) => futureStates[key].stateScore)
+      .reduce((accumulator, currentValue) => accumulator + currentValue);
+
+      /* strategy 2: max state + tweaks
     const maximumScore = nonFatalFutures
       .map((key) => futureStates[key].stateScore)
-      .reduce((accumulator, currentValue) => 
+      .reduce((accumulator, currentValue) =>
         currentValue > accumulator ? currentValue : accumulator
       );
 
-    /*const totalScore = nonFatalFutures
-      .map((key) => futureStates[key].stateScore)
-      .reduce((accumulator, currentValue) => accumulator + currentValue);*/
     let totalScore = numberOfViableFuture * 2 + maximumScore;
-    if (futureState.you.health < 20){
+    if (futureState.you.health < 20) {
       const score = scoreGameState(futureState);
-      totalScore += (score * (1 + MAX_EVALUATION_DEPTH - remainingMaxEvaluations) / 8);
-    }
+      totalScore +=
+        (score * (1 + MAX_EVALUATION_DEPTH - remainingMaxEvaluations)) / 8;
+    }*/
 
     trace(
       fileLogLevel,
