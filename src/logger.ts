@@ -26,6 +26,6 @@ export function trace(
     for (let i = 0; i < indentCharsNb; i++) {
       indent += " ";
     }
-    console.log(`[${logLevel[level]}] ${gameId} ${indent}${msg}`);
+    //console.log(`[${logLevel[level]}] ${gameId} ${indent}${msg}`);
   }
 }

@@ -26,16 +26,16 @@ export function info(): InfoResponse {
     default:
       response = arloAndKim2;
   }
-  console.log(
+  /*console.log(
     `Snake env = ${process.env.SNAKE_INTERNAL_NAME} ${process.env.LOG_LEVEL} ${process.env.PORT}`
-  );
+  );*/
   return response;
 }
 
 export function start(gameState: GameState): void {
-  console.log(
+  /*console.log(
     ` START https://engine.battlesnake.com/games/${gameState.game.id}/frames`
-  );
+  );*/
 }
 
 export function end(gameState: GameState): void {

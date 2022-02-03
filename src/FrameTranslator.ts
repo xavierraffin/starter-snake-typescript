@@ -1,7 +1,7 @@
 import { trace, logLevel as log } from "./logger";
 import { GameState, Battlesnake, Coord } from "./types";
 
-const SNAKE_NAKE = "Killer whale";
+const SNAKE_NAKE = "Montgomery";
 
 export function frameTranslator(frames: any, gameId: string): GameState {
 
